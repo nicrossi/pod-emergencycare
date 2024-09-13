@@ -1,0 +1,49 @@
+# from Maven.gitignore
+/tpe1-g6/target/
+# my own spin for this archetype
+/tpe1-g6/api/target/
+/tpe1-g6/client/target/
+/tpe1-g6/server/target/
+
+/tpe1-g6/pom.xml.tag
+/tpe1-g6/pom.xml.releaseBackup
+/tpe1-g6/pom.xml.versionsBackup
+/tpe1-g6/pom.xml.next
+/tpe1-g6/release.properties
+/tpe1-g6/dependency-reduced-pom.xml
+/tpe1-g6/buildNumber.properties
+/tpe1-g6/.mvn/timing.properties
+# https://github.com/takari/maven-wrapper#usage-without-binary-jar
+/tpe1-g6/.mvn/wrapper/maven-wrapper.jar
+
+# Eclipse m2e generated files
+# Eclipse Core
+/tpe1-g6/.project
+# JDT-specific (Eclipse Java Development Tools)
+/tpe1-g6/.classpath
+
+# from Java.gitignore
+# Compiled class file
+*.class
+
+# Log file
+/tpe1-g6/*.log
+
+# BlueJ files
+/tpe1-g6/*.ctxt
+
+# Mobile Tools for Java (J2ME)
+/tpe1-g6/.mtj.tmp/
+
+# Package Files #
+/tpe1-g6/*.jar
+/tpe1-g6/*.war
+/tpe1-g6/*.nar
+/tpe1-g6/*.ear
+/tpe1-g6/*.zip
+/tpe1-g6/*.tar.gz
+/tpe1-g6/*.rar
+
+# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
+/tpe1-g6/hs_err_pid*
+/tpe1-g6/replay_pid*
