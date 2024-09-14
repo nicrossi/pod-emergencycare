@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+import "google/protobuf/wrappers.proto";
+import "google/protobuf/empty.proto";
+
+package administrationService;
+
+option java_package = "ar.edu.itba.pod.tpe1.administration";
+option java_outer_classname = "AdministrationServiceModel";
+option java_multiple_files = true;
+
+service AdministrationService {
+  rpc AddRoom(google.protobuf.Empty) returns (google.protobuf.Int32Value); //returns room number
+  rpc AddDoctor(AddDoctorRequest) returns (DoctorInfo); // don't show availability
+  rpc SetDoctor(SetDoctorRequest) returns (DoctorInfo);
+  rpc CheckDoctor(google.protobuf.StringValue) returns (DoctorInfo);
+}
+
+message AddDoctorRequest {
+  string doctorName = 1;
+  int32 level = 2;
+}
+
+enum AvailabilityStatus {
+  AVAILABILITY_STATUS_UNSPECIFIED = 0;
+  AVAILABILITY_STATUS_AVAILABLE = 1;
+  AVAILABILITY_STATUS_UNAVAILABLE = 2;
+  AVAILABILITY_STATUS_ATTENDING = 3;
+}
+
+message SetDoctorRequest {
+  string doctorName = 1;
+  AvailabilityStatus availability = 2;
+}
+
+message DoctorInfo {
+  string doctorName = 1;
+  int32 level = 2;
+  AvailabilityStatus availability = 3;
+}
