@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+import "google/protobuf/wrappers.proto";
+import "google/protobuf/empty.proto";
+
+package waitingRoomService;
+
+option java_package = "ar.edu.itba.pod.tpe1.waitingRoom";
+option java_outer_classname = "WaitingRoomServiceModel";
+option java_multiple_files = true;
+
+service WaitingRoomService {
+  rpc AddPatient(PatientSet) returns (PatientState); // don't show place in queue
+  rpc UpdateLevel(PatientSet) returns (PatientState); // don't show place in queue
+  rpc CheckPatient(PatientCheck) returns (PatientState);
+}
+
+message PatientSet {
+  string patientName  = 1;
+  int32 level = 2;
+}
+
+message PatientCheck {
+  string patientName = 1;
+}
+
+message PatientState {
+  string patientName = 1;
+  int32 level = 2;
+  int32 queuePlace = 3;
+}

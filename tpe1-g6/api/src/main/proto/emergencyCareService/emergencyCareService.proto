@@ -1,0 +1,53 @@
+syntax = "proto3";
+
+import "google/protobuf/wrappers.proto";
+import "google/protobuf/empty.proto";
+
+package emergencyCareService;
+
+option java_package = "ar.edu.itba.pod.tpe1.emergencyCare";
+option java_outer_classname = "EmergencyCareServiceModel";
+option java_multiple_files = true;
+
+service EmergencyCareService {
+  rpc CarePatient(CarePatientRequest) returns (CarePatientResponse);
+  rpc CareAllPatients(google.protobuf.Empty) returns (CareAllPatientsResponse);
+  rpc DischargePatient(DischargePatientRequest) returns (DischargePatientResponse);
+}
+
+message CarePatientRequest {
+  int32 room = 1;
+}
+enum RoomStatus {
+  ROOM_STATUS_UNSPECIFIED = 0;
+  ROOM_STATUS_FREE = 1;
+  ROOM_STATUS_OCCUPIED = 2;
+}
+message CarePatientResponse {
+  int32 room = 1;
+  oneof state{
+    CarePatientInfo effect = 2; // only pass this field IF we started something
+    RoomStatus status = 3;  // only pass this field IF the room's state didn't change
+  }
+}
+message CarePatientInfo {
+  string doctorName = 2;
+  int32 doctorLevel = 3;
+  string patientName = 4;
+  int32 patientLevel = 5;
+}
+message CareAllPatientsResponse {
+  repeated CarePatientResponse states = 1;
+}
+message DischargePatientRequest {
+  int32 room = 1;
+  string doctorName = 2;
+  string patientName = 3;
+}
+message DischargePatientResponse {
+  int32 room = 1;
+  string patientName = 2;
+  int32 patientLevel = 3;
+  string doctorName = 4;
+  int32 doctorLevel = 5;
+}

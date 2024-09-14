@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+import "google/protobuf/wrappers.proto";
+import "google/protobuf/empty.proto";
+
+package queryService;
+
+option java_package = "ar.edu.itba.pod.tpe1.query";
+option java_outer_classname = "QueryServiceModel";
+option java_multiple_files = true;
+
+service QueryService {
+  rpc QueryRooms(QueryRequest) returns (stream Chunk);
+  rpc QueryWaitingRoom(QueryRequest) returns (stream Chunk);
+  rpc QueryCares(QueryRequest) returns (stream Chunk);
+}
+
+message QueryRequest {
+  optional int32 room = 1;
+}
+// there's a limit to how big a message can be, so we send the csv from the server in chunks
+// idea: https://stackoverflow.com/questions/49312554/grpc-java-file-download-example
+message Chunk {
+  bytes data = 1;
+}
