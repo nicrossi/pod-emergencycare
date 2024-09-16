@@ -1,26 +1,28 @@
 package ar.edu.itba.pod.tpe1.client;
 
-import io.grpc.ManagedChannel;
-import io.grpc.ManagedChannelBuilder;
+import ar.edu.itba.pod.tpe1.client.service.strategy.ServiceStrategyProvider;
+import ar.edu.itba.pod.tpe1.client.service.strategy.ServiceStrategy;
+import ar.edu.itba.pod.tpe1.client.service.strategy.ServiceType;
+import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.TimeUnit;
-
 public class Client {
-    private static Logger logger = LoggerFactory.getLogger(Client.class);
+    private static final Logger logger = LoggerFactory.getLogger(Client.class);
 
     public static void main(String[] args) throws InterruptedException {
         logger.info("tpe1-g6 Client Starting ...");
-        logger.info("grpc-com-patterns Client Starting ...");
-        ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", 50051)
-                .usePlaintext()
-                .build();
+        final String serverAddress = Validate.notBlank(System.getProperty("serverAddress"), "'serverAddress' can't be empty");
+        final String action = Validate.notBlank(System.getProperty("action"), "'action' can't be empty");
+        final String service = Validate.notBlank(System.getProperty("service"), "'service' can't be empty");
+
+        ServiceStrategyProvider serviceStrategyProvider = new ServiceStrategyProvider();
 
         try {
-
-        } finally {
-            channel.shutdown().awaitTermination(10, TimeUnit.SECONDS);
+            ServiceStrategy serviceStrategy = serviceStrategyProvider.getServiceStrategy(ServiceType.selectService(service), serverAddress);
+            serviceStrategy.execute(action);
+        } catch (Exception e){
+            logger.error("Error executing service: {}", e.getMessage(), e);
         }
     }
 }

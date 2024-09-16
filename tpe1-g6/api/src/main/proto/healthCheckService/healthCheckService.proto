@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+import "google/protobuf/wrappers.proto";
+import "google/protobuf/empty.proto";
+
+package healthCheckService;
+
+option java_package = "ar.edu.itba.pod.tpe1.healthCheck";
+option java_multiple_files = true;
+
+service HealthCheckService {
+ rpc healthCheck(google.protobuf.Empty) returns (HealthCheckResponse);
+}
+
+message HealthCheckResponse {
+ google.protobuf.StringValue status = 1;
+}
