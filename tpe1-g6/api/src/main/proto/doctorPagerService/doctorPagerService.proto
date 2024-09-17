@@ -20,11 +20,11 @@ message DoctorPagerRequest {
 }
 enum AttentionStatus {
   ATTENTION_STATUS_UNSPECIFIED = 0;
-  ATTENTION_STATUS_REGISTERED = 1;
-  ATTENTION_STATUS_UNREGISTERED = 2;
-  ATTENTION_STATUS_IDLE = 3;
-  ATTENTION_STATUS_BUSY = 4;
-  ATTENTION_STATUS_DISCHARGE = 5;
+  ATTENTION_STATUS_REGISTERED = 1; //registered for pager
+  ATTENTION_STATUS_UNREGISTERED = 2; //unregistered pager
+  ATTENTION_STATUS_IDLE = 3;  //when available
+  ATTENTION_STATUS_BUSY = 4;  //when attending
+  ATTENTION_STATUS_DISCHARGE = 5; //when patient is discharged
 }
 message DoctorPagerResponse {
   string doctorName = 1;

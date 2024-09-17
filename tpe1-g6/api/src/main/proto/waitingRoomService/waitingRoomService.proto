@@ -10,12 +10,12 @@ option java_outer_classname = "WaitingRoomServiceModel";
 option java_multiple_files = true;
 
 service WaitingRoomService {
-  rpc AddPatient(PatientSet) returns (PatientState); // don't show place in queue
-  rpc UpdateLevel(PatientSet) returns (PatientState); // don't show place in queue
+  rpc AddPatient(Patient) returns (Patient);
+  rpc UpdateLevel(Patient) returns (Patient);
   rpc CheckPatient(PatientCheck) returns (PatientState);
 }
 
-message PatientSet {
+message Patient {
   string patientName  = 1;
   int32 level = 2;
 }
