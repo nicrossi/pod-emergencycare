@@ -10,15 +10,14 @@ import org.slf4j.LoggerFactory;
 public class Client {
     private static final Logger logger = LoggerFactory.getLogger(Client.class);
 
-    public static void main(String[] args) throws InterruptedException {
+    public static void main(String[] args) {
         logger.info("tpe1-g6 Client Starting ...");
         final String serverAddress = Validate.notBlank(System.getProperty("serverAddress"), "'serverAddress' can't be empty");
         final String action = Validate.notBlank(System.getProperty("action"), "'action' can't be empty");
         final String service = Validate.notBlank(System.getProperty("service"), "'service' can't be empty");
 
-        ServiceStrategyProvider serviceStrategyProvider = new ServiceStrategyProvider();
-
         try {
+            ServiceStrategyProvider serviceStrategyProvider = new ServiceStrategyProvider();
             ServiceStrategy serviceStrategy = serviceStrategyProvider.getServiceStrategy(ServiceType.selectService(service), serverAddress);
             serviceStrategy.execute(action);
         } catch (Exception e){
