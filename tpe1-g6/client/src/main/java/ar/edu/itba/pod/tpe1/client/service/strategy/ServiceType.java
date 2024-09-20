@@ -11,7 +11,12 @@ import java.util.Arrays;
 @AllArgsConstructor
 public enum ServiceType {
     // TODO maybe move the default IPs to a config file
-    HEALTH_CHECK("HealthCheck", "localhost:50051");
+    HEALTH_CHECK("HealthCheck", "localhost:50051"),
+    ADMINISTRATION("AdministrationClient", "localhost:50051"),
+    WAITING_ROOM("WaitingRoomClient", "localhost:50051"),
+    EMERGENCY_CARE("EmergencyCareClient", "localhost:50051"),
+    DOCTOR_PAGER("DoctorPagerClient", "localhost:50051"),
+    QUERY("QueryClient", "localhost:50051");
 
     private final String name;
     private final String target;
