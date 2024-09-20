@@ -20,10 +20,10 @@ public class DoctorsRepository {
         }
 
         synchronized (lock) {
-            if(doctors.containsKey(doctor.getDoctorName())) {
+            if(doctors.containsKey(doctor.getName())) {
                 throw new IllegalArgumentException("Doctor already exists");
             }
-            doctors.put(doctor.getDoctorName(), doctor);
+            doctors.put(doctor.getName(), doctor);
             return doctor;
         }
     }
