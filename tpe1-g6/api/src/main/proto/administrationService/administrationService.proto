@@ -11,9 +11,9 @@ option java_multiple_files = true;
 
 service AdministrationService {
   rpc AddRoom(google.protobuf.Empty) returns (google.protobuf.Int32Value); //returns room number
-  rpc AddDoctor(AddDoctorRequest) returns (DoctorInfo); // don't show availability
-  rpc SetDoctor(SetDoctorRequest) returns (DoctorInfo);
-  rpc CheckDoctor(google.protobuf.StringValue) returns (DoctorInfo);
+  rpc AddDoctor(AddDoctorRequest) returns (Doctor); // don't show availability
+  rpc SetDoctor(SetDoctorRequest) returns (Doctor);
+  rpc CheckDoctor(google.protobuf.StringValue) returns (Doctor);
 }
 
 message AddDoctorRequest {
@@ -33,8 +33,8 @@ message SetDoctorRequest {
   AvailabilityStatus availability = 2;
 }
 
-message DoctorInfo {
-  string doctorName = 1;
+message Doctor {
+  string name = 1;
   int32 level = 2;
   AvailabilityStatus availability = 3;
 }
