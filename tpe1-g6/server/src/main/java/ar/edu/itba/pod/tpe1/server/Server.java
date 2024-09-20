@@ -1,8 +1,11 @@
 package ar.edu.itba.pod.tpe1.server;
 
 import ar.edu.itba.pod.tpe1.server.servants.AdministrationServant;
+import ar.edu.itba.pod.tpe1.server.servants.DoctorPagerServant;
 import ar.edu.itba.pod.tpe1.server.interceptor.GlobalExceptionHandlerInterceptor;
 import ar.edu.itba.pod.tpe1.server.servants.HealthCheckServant;
+import ar.edu.itba.pod.tpe1.server.servants.QueryServant;
+import ar.edu.itba.pod.tpe1.server.servants.WaitingRoomServant;
 import io.grpc.ServerBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +22,9 @@ public class Server {
         io.grpc.Server server = ServerBuilder.forPort(port)
                 .addService(new HealthCheckServant())
                 .addService(new AdministrationServant())
+                .addService(new WaitingRoomServant())
+                .addService(new DoctorPagerServant())
+                .addService(new QueryServant())
                 .intercept(new GlobalExceptionHandlerInterceptor())
                 .build();
         server.start();
