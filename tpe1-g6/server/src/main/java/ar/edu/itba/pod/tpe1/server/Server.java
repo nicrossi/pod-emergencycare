@@ -1,5 +1,6 @@
 package ar.edu.itba.pod.tpe1.server;
 
+import ar.edu.itba.pod.tpe1.server.interceptor.GlobalExceptionHandlerInterceptor;
 import ar.edu.itba.pod.tpe1.server.servants.HealthCheckServant;
 import io.grpc.ServerBuilder;
 import org.slf4j.Logger;
@@ -16,6 +17,7 @@ public class Server {
         int port = 50051;
         io.grpc.Server server = ServerBuilder.forPort(port)
                 .addService(new HealthCheckServant())
+                .intercept(new GlobalExceptionHandlerInterceptor())
                 .build();
         server.start();
         logger.info("Server started, listening on " + port);
