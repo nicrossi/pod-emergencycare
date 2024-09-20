@@ -3,6 +3,10 @@ syntax = "proto3";
 import "google/protobuf/wrappers.proto";
 import "google/protobuf/empty.proto";
 
+import "administrationService/administrationService.proto";
+import "waitingRoomService/waitingRoomService.proto";
+import "emergencyCareService/emergencyCareService.proto";
+
 package queryService;
 
 option java_package = "ar.edu.itba.pod.tpe1.query";
@@ -10,14 +14,42 @@ option java_outer_classname = "QueryServiceModel";
 option java_multiple_files = true;
 
 service QueryService {
-  rpc QueryRooms(QueryRequest) returns (stream Chunk);
-  rpc QueryWaitingRoom(QueryRequest) returns (stream Chunk);
-  rpc QueryCares(QueryRequest) returns (stream Chunk);
+  rpc QueryRooms(google.protobuf.Empty) returns (QueryRoomsResponse);
+  rpc QueryWaitingRoom(google.protobuf.Empty) returns (QueryWaitingRoomResponse);
+  rpc QueryCares(QueryRequest) returns (QueryCaresResponse);
 }
 
 message QueryRequest {
   optional int32 room = 1;
 }
+
+message QueryCaresResponse {
+  repeated CaredInfo history = 1;
+}
+message CaredInfo {
+  int32 roomId = 1;
+  administrationService.Doctor doctor = 3;
+  waitingRoomService.Patient patient = 4;
+}
+
+
+message QueryWaitingRoomResponse {
+  repeated waitingRoomService.Patient patientsInfo = 1;
+}
+
+message QueryRoomsResponse {
+  repeated QueryRoomInfo roomsInfo = 1;
+}
+message QueryRoomInfo {
+  int32 roomId = 1;
+  emergencyCareService.RoomStatus status = 2;
+  administrationService.Doctor doctor = 3;
+  waitingRoomService.Patient patient = 4;
+}
+
+
+
+
 // there's a limit to how big a message can be, so we send the csv from the server in chunks
 // idea: https://stackoverflow.com/questions/49312554/grpc-java-file-download-example
 message Chunk {
