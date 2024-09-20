@@ -35,7 +35,7 @@ public class ServiceStrategyProvider {
 
         public ServiceStrategyFactory() {
             register(ServiceType.HEALTH_CHECK, HealthCheckServiceStrategy::new);
-            register(ServiceType.ADMINISTRATION, AdministrationClientStrategy::new);
+            register(ServiceType.ADMINISTRATION, AdministrationStrategy::new);
         }
 
         public void register(ServiceType serviceType, Function<String, ServiceStrategy> constructor) {
