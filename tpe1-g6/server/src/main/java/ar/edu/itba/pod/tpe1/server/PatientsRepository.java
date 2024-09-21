@@ -1,38 +1,54 @@
 package ar.edu.itba.pod.tpe1.server;
 
+import ar.edu.itba.pod.tpe1.server.model.ComparablePatient;
 import ar.edu.itba.pod.tpe1.waitingRoom.*;
+import org.apache.commons.lang3.Validate;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.PriorityBlockingQueue;
 
 public class PatientsRepository {
     private final Object lock = "lock";
-
-    private final Map<String, Patient> patients = new HashMap<>();
+    private final PriorityBlockingQueue<ComparablePatient> patients = new PriorityBlockingQueue<>();
 
     private final int MAX_LEVEL = 5;
     private final int MIN_LEVEL = 1;
 
     public Patient addPatient(Patient patient) {
-        if (patient.getLevel() > MAX_LEVEL || patient.getLevel() < MIN_LEVEL) {
-            throw new IllegalArgumentException("Patient level out of range");
-        }
+        Validate.isTrue(patient.getLevel() >= MIN_LEVEL && patient.getLevel() <= MAX_LEVEL, "Patient level out of range");
 
         synchronized (lock) {
-            if (patients.containsKey(patient.getPatientName())) {
+            ComparablePatient comparablePatient = new ComparablePatient(patient);
+            if (patients.contains(comparablePatient)) {
                 throw new IllegalArgumentException("Patient already exists");
             }
 
-            patients.put(patient.getPatientName(), patient);
+            patients.add(comparablePatient);
             return patient;
         }
     }
 
-    public Optional<Patient> getPatient(String patientName) {
+    public Patient updateLevel(Patient patient) {
+        Validate.isTrue(patient.getLevel() >= MIN_LEVEL && patient.getLevel() <= MAX_LEVEL, "Patient level out of range");
+
         synchronized (lock) {
-            return Optional.ofNullable(patients.get(patientName));
+            ComparablePatient comparablePatient = new ComparablePatient(patient);
+            if (!patients.contains(comparablePatient)) {
+                throw new IllegalArgumentException("Patient does not exist");
+            }
+
+            // TODO: Handle error or maybe return optional
+            if (patients.remove(comparablePatient)) {
+                patients.add(comparablePatient);
+            }
+            return patient;
         }
     }
+
+//    public Optional<Patient> getPatient(String patientName) {
+//        synchronized (lock) {
+//            return Optional.ofNullable(patients.get(patientName));
+//        }
+//    }
 }
 

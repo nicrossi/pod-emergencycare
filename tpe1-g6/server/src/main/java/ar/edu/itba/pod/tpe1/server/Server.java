@@ -27,7 +27,7 @@ public class Server {
         io.grpc.Server server = ServerBuilder.forPort(port)
                 .addService(new HealthCheckServant())
                 .addService(new AdministrationServant(docRepo, rooRepo))
-                .addService(new WaitingRoomServant())
+                .addService(new WaitingRoomServant(patRepo))
                 .addService(new DoctorPagerServant())
                 .addService(new QueryServant())
                 .intercept(new GlobalExceptionHandlerInterceptor())
