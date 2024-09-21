@@ -37,4 +37,5 @@ message Doctor {
   string name = 1;
   int32 level = 2;
   AvailabilityStatus availability = 3;
+  bool registered = 4;
 }
