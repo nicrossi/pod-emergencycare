@@ -1,6 +1,7 @@
 package ar.edu.itba.pod.tpe1.server;
 
 import ar.edu.itba.pod.tpe1.server.repository.DoctorsRepository;
+import ar.edu.itba.pod.tpe1.server.repository.HistoryRepository;
 import ar.edu.itba.pod.tpe1.server.repository.PatientsRepository;
 import ar.edu.itba.pod.tpe1.server.repository.RoomsRepository;
 import ar.edu.itba.pod.tpe1.server.servants.AdministrationServant;
@@ -21,6 +22,7 @@ public class Server {
     private static final DoctorsRepository docRepo = new DoctorsRepository();
     private static final PatientsRepository patRepo = new PatientsRepository();
     private static final RoomsRepository rooRepo = new RoomsRepository();
+    private static final HistoryRepository hisRepo = new HistoryRepository();
 
 
     public static void main(String[] args) throws InterruptedException, IOException {
@@ -32,7 +34,7 @@ public class Server {
                 .addService(new AdministrationServant(docRepo, rooRepo))
                 .addService(new WaitingRoomServant(patRepo))
                 .addService(new DoctorPagerServant())
-                .addService(new QueryServant())
+                .addService(new QueryServant(hisRepo))
                 .intercept(new GlobalExceptionHandlerInterceptor())
                 .build();
         server.start();
