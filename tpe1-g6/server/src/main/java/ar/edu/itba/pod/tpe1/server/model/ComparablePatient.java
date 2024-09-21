@@ -1,12 +1,13 @@
 package ar.edu.itba.pod.tpe1.server.model;
 
 import ar.edu.itba.pod.tpe1.waitingRoom.Patient;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+
 import java.util.concurrent.atomic.AtomicLong;
 
 @Getter
-@EqualsAndHashCode
 public class ComparablePatient implements Comparable<ComparablePatient> {
     private static final AtomicLong seq = new AtomicLong(0);
     private final long seqNum;
@@ -40,5 +41,29 @@ public class ComparablePatient implements Comparable<ComparablePatient> {
         return "ComparablePatient { " +
                 patient +
                 " (" + patient.getLevel() + ") }";
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (!(o instanceof ComparablePatient that)) {
+            return false;
+        }
+
+        Patient thisPatient = getPatient();
+        Patient thatPatient = that.getPatient();
+        return new EqualsBuilder()
+                .append(thisPatient.getPatientName(), thatPatient.getPatientName())
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(getSeqNum())
+                .append(getPatient()).toHashCode();
     }
 }
