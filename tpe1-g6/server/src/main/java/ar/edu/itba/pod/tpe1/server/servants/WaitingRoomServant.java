@@ -1,6 +1,6 @@
 package ar.edu.itba.pod.tpe1.server.servants;
 
-import ar.edu.itba.pod.tpe1.server.PatientsRepository;
+import ar.edu.itba.pod.tpe1.server.repository.PatientsRepository;
 import ar.edu.itba.pod.tpe1.waitingRoom.Patient;
 import ar.edu.itba.pod.tpe1.waitingRoom.WaitingRoomServiceGrpc;
 import io.grpc.stub.StreamObserver;

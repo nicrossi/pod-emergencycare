@@ -1,5 +1,8 @@
 package ar.edu.itba.pod.tpe1.server;
 
+import ar.edu.itba.pod.tpe1.server.repository.DoctorsRepository;
+import ar.edu.itba.pod.tpe1.server.repository.PatientsRepository;
+import ar.edu.itba.pod.tpe1.server.repository.RoomsRepository;
 import ar.edu.itba.pod.tpe1.server.servants.AdministrationServant;
 import ar.edu.itba.pod.tpe1.server.servants.DoctorPagerServant;
 import ar.edu.itba.pod.tpe1.server.interceptor.GlobalExceptionHandlerInterceptor;

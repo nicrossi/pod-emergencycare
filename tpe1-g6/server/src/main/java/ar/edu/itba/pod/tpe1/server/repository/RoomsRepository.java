@@ -1,4 +1,4 @@
-package ar.edu.itba.pod.tpe1.server;
+package ar.edu.itba.pod.tpe1.server.repository;
 
 import ar.edu.itba.pod.tpe1.emergencyCare.RoomStatus;
 
