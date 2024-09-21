@@ -1,4 +1,4 @@
-package ar.edu.itba.pod.tpe1.server;
+package ar.edu.itba.pod.tpe1.server.repository;
 
 import ar.edu.itba.pod.tpe1.administration.Doctor;
 
@@ -25,6 +25,21 @@ public class DoctorsRepository {
             }
             doctors.put(doctor.getName(), doctor);
             return doctor;
+        }
+    }
+
+
+    public Doctor modifyDoctor(Doctor modifiedDoctor) {
+        synchronized (lock) {
+            Doctor prevDoctor = doctors.get(modifiedDoctor.getName());
+
+            if(prevDoctor == null) {
+                throw new IllegalArgumentException("Doctor not found");
+            }
+
+            doctors.put(modifiedDoctor.getName(), modifiedDoctor);
+
+            return modifiedDoctor;
         }
     }
 

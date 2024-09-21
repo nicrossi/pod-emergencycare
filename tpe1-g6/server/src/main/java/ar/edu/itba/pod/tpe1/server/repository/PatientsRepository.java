@@ -1,10 +1,9 @@
-package ar.edu.itba.pod.tpe1.server;
+package ar.edu.itba.pod.tpe1.server.repository;
 
 import ar.edu.itba.pod.tpe1.server.model.ComparablePatient;
 import ar.edu.itba.pod.tpe1.waitingRoom.*;
 import org.apache.commons.lang3.Validate;
 
-import java.util.Optional;
 import java.util.concurrent.PriorityBlockingQueue;
 
 public class PatientsRepository {

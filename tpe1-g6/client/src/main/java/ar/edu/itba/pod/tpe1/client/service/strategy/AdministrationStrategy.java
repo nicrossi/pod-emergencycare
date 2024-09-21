@@ -62,7 +62,11 @@ public class AdministrationStrategy extends AbstractServiceStrategy {
         StreamObserver<Doctor> setDoctorObserver = new StreamObserver<>() {
             @Override
             public void onNext(Doctor doctor) {
-                logger.info("Doctor {} ({}) is {}", doctor.getName(), doctor.getLevel(), doctor.getAvailability());
+                logger.info("Doctor {} ({}) is {}",
+                        doctor.getName(),
+                        doctor.getLevel(),
+                        AdministrationClientUtil.getAvailability(doctor.getAvailability())
+                );
                 // TODO: implement
             }
 
@@ -80,7 +84,11 @@ public class AdministrationStrategy extends AbstractServiceStrategy {
         StreamObserver<Doctor> checkDoctorObserver = new StreamObserver<>() {
             @Override
             public void onNext(Doctor doctor) {
-                logger.info("Doctor {} ({}) is {}", doctor.getName(), doctor.getLevel(), doctor.getAvailability());
+                logger.info("Doctor {} ({}) is {}",
+                        doctor.getName(),
+                        doctor.getLevel(),
+                        AdministrationClientUtil.getAvailability(doctor.getAvailability())
+                );
                 // TODO: implement
             }
 
@@ -100,7 +108,8 @@ public class AdministrationStrategy extends AbstractServiceStrategy {
             case "addRoom" -> () -> stub.addRoom(Empty.getDefaultInstance(), addRoomObserver);
             case "addDoctor" -> () -> stub.addDoctor(AdministrationClientUtil.getAddDoctorRequest(), addDoctorObserver);
             case "setDoctor" -> () -> stub.setDoctor(AdministrationClientUtil.getSetDoctorRequest(), setDoctorObserver);
-            case "checkDoctor" -> () -> stub.checkDoctor(AdministrationClientUtil.getCheckDoctorRequest(), checkDoctorObserver);
+            case "checkDoctor" ->
+                    () -> stub.checkDoctor(AdministrationClientUtil.getCheckDoctorRequest(), checkDoctorObserver);
             default -> null;
         };
     }
