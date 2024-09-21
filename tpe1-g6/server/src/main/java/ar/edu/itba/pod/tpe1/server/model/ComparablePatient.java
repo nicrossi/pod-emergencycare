@@ -1,6 +1,6 @@
 package ar.edu.itba.pod.tpe1.server.model;
 
-import ar.edu.itba.pod.tpe1.waitingRoom.PatientSet;
+import ar.edu.itba.pod.tpe1.waitingRoom.Patient;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import java.util.concurrent.atomic.AtomicLong;
@@ -10,9 +10,9 @@ import java.util.concurrent.atomic.AtomicLong;
 public class ComparablePatient implements Comparable<ComparablePatient> {
     private static final AtomicLong seq = new AtomicLong(0);
     private final long seqNum;
-    private final PatientSet patient;
+    private final Patient patient;
 
-    public ComparablePatient(PatientSet patient) {
+    public ComparablePatient(Patient patient) {
         this.patient = patient;
         this.seqNum = seq.getAndIncrement();
     }

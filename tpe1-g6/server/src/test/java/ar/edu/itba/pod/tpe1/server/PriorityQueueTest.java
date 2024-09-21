@@ -1,10 +1,9 @@
 package ar.edu.itba.pod.tpe1.server;
 
 import ar.edu.itba.pod.tpe1.server.model.ComparablePatient;
-import ar.edu.itba.pod.tpe1.waitingRoom.PatientSet;
+import ar.edu.itba.pod.tpe1.waitingRoom.Patient;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
@@ -38,7 +37,7 @@ public class PriorityQueueTest {
             executorService.submit(() -> {
                 try {
                     int level = random.nextInt(5) + 1;
-                    PatientSet patientSet = PatientSet.newBuilder()
+                    Patient patientSet = Patient.newBuilder()
                             .setPatientName("Patient-" + id)
                             .setLevel(level)
                             .build();
