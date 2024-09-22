@@ -5,16 +5,16 @@ import ar.edu.itba.pod.tpe1.waitingRoom.*;
 import org.apache.commons.lang3.Validate;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.PriorityBlockingQueue;
 
 public class PatientsRepository {
     private final Object lock = "lock";
-    private final Map<String, Patient> patients = new ConcurrentHashMap<>();
+    private final Map<String, ComparablePatient> patients = new ConcurrentHashMap<>();
     private final PriorityBlockingQueue<ComparablePatient> waitingRoom = new PriorityBlockingQueue<>();
 
     private final int MAX_LEVEL = 5;
@@ -26,8 +26,9 @@ public class PatientsRepository {
         synchronized (lock) {
             Validate.isTrue(!patients.containsKey(patient.getPatientName()), "Patient already exist");
 
-            patients.put(patient.getPatientName(), patient);
-            waitingRoom.add(new ComparablePatient(patient));
+            ComparablePatient cp = new ComparablePatient(patient);
+            patients.put(patient.getPatientName(), cp);
+            waitingRoom.add(cp);
 
             return patient;
         }
@@ -39,9 +40,10 @@ public class PatientsRepository {
         synchronized (lock) {
             Validate.isTrue(patients.containsKey(patient.getPatientName()), "Patient does not exist");
 
-            ComparablePatient comparablePatient = new ComparablePatient(patient);
-            if (waitingRoom.remove(comparablePatient)) {
-                waitingRoom.add(comparablePatient);
+            ComparablePatient cp = patients.get(patient.getPatientName());
+            if (waitingRoom.remove(cp)) {
+                cp.setLevel(patient.getLevel());
+                waitingRoom.add(cp);
             }
 
             return patient;
@@ -54,15 +56,37 @@ public class PatientsRepository {
         synchronized (lock) {
             Validate.isTrue(patients.containsKey(patientName), "Patient does not exist");
 
+            ComparablePatient patient = patients.get(patientName);
             List<ComparablePatient> patientList = new ArrayList<>(waitingRoom);
             Collections.sort(patientList);
-            int index = patientList.indexOf(new ComparablePatient(patients.get(patientName)));
+            int index = patientList.indexOf(patient);
             return PatientState.newBuilder()
                     .setPatientName(patientName)
-                    .setLevel(patients.get(patientName).getLevel())
+                    .setLevel(patient.getLevel())
                     .setQueuePlace(index)
                     .build();
         }
+    }
+
+    public int getPatientsWaitingCount() {
+        return waitingRoom.size();
+    }
+
+    public Optional<Patient> getWaitingRoomNextPatient() {
+        synchronized (lock) {
+            ComparablePatient patient = waitingRoom.poll();
+            if (patient == null) {
+                return Optional.empty();
+            }
+
+            return Optional.ofNullable(patients.remove(patient.getName()))
+                           .map(ComparablePatient::getPatient);
+        }
+    }
+
+    public Optional<Patient> peekWaitingRoomNextPatient() {
+        return Optional.ofNullable(waitingRoom.peek())
+                       .map(ComparablePatient::getPatient);
     }
 }
 

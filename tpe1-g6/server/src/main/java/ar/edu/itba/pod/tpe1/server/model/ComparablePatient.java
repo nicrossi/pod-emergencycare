@@ -11,7 +11,7 @@ import java.util.concurrent.atomic.AtomicLong;
 public class ComparablePatient implements Comparable<ComparablePatient> {
     private static final AtomicLong seq = new AtomicLong(0);
     private final long seqNum;
-    private final Patient patient;
+    private Patient patient;
 
     public ComparablePatient(Patient patient) {
         this.patient = patient;
@@ -24,6 +24,10 @@ public class ComparablePatient implements Comparable<ComparablePatient> {
 
     public int getLevel() {
         return patient.getLevel();
+    }
+
+    public void setLevel(int level) {
+        this.patient = patient.toBuilder().setLevel(level).build();
     }
 
     @Override
