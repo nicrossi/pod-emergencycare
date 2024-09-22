@@ -4,11 +4,18 @@ import ar.edu.itba.pod.tpe1.server.model.ComparablePatient;
 import ar.edu.itba.pod.tpe1.waitingRoom.*;
 import org.apache.commons.lang3.Validate;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.PriorityBlockingQueue;
 
 public class PatientsRepository {
     private final Object lock = "lock";
-    private final PriorityBlockingQueue<ComparablePatient> patients = new PriorityBlockingQueue<>();
+    private final Map<String, Patient> patients = new ConcurrentHashMap<>();
+    private final PriorityBlockingQueue<ComparablePatient> waitingRoom = new PriorityBlockingQueue<>();
 
     private final int MAX_LEVEL = 5;
     private final int MIN_LEVEL = 1;
@@ -17,12 +24,11 @@ public class PatientsRepository {
         Validate.isTrue(patient.getLevel() >= MIN_LEVEL && patient.getLevel() <= MAX_LEVEL, "Patient level out of range");
 
         synchronized (lock) {
-            ComparablePatient comparablePatient = new ComparablePatient(patient);
-            if (patients.contains(comparablePatient)) {
-                throw new IllegalArgumentException("Patient already exists");
-            }
+            Validate.isTrue(!patients.containsKey(patient.getPatientName()), "Patient already exist");
 
-            patients.add(comparablePatient);
+            patients.put(patient.getPatientName(), patient);
+            waitingRoom.add(new ComparablePatient(patient));
+
             return patient;
         }
     }
@@ -31,23 +37,32 @@ public class PatientsRepository {
         Validate.isTrue(patient.getLevel() >= MIN_LEVEL && patient.getLevel() <= MAX_LEVEL, "Patient level out of range");
 
         synchronized (lock) {
+            Validate.isTrue(patients.containsKey(patient.getPatientName()), "Patient does not exist");
+
             ComparablePatient comparablePatient = new ComparablePatient(patient);
-            if (!patients.contains(comparablePatient)) {
-                throw new IllegalArgumentException("Patient does not exist");
+            if (waitingRoom.remove(comparablePatient)) {
+                waitingRoom.add(comparablePatient);
             }
 
-            // TODO: Handle error or maybe return optional
-            if (patients.remove(comparablePatient)) {
-                patients.add(comparablePatient);
-            }
             return patient;
         }
     }
 
-//    public Optional<Patient> getPatient(String patientName) {
-//        synchronized (lock) {
-//            return Optional.ofNullable(patients.get(patientName));
-//        }
-//    }
+    public PatientState checkPatient(String patientName) {
+        Validate.notBlank(patientName, "Patient name cannot be blank");
+
+        synchronized (lock) {
+            Validate.isTrue(patients.containsKey(patientName), "Patient does not exist");
+
+            List<ComparablePatient> patientList = new ArrayList<>(waitingRoom);
+            Collections.sort(patientList);
+            int index = patientList.indexOf(new ComparablePatient(patients.get(patientName)));
+            return PatientState.newBuilder()
+                    .setPatientName(patientName)
+                    .setLevel(patients.get(patientName).getLevel())
+                    .setQueuePlace(index)
+                    .build();
+        }
+    }
 }
 
