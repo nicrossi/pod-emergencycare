@@ -4,11 +4,7 @@ import ar.edu.itba.pod.tpe1.server.model.ComparablePatient;
 import ar.edu.itba.pod.tpe1.waitingRoom.*;
 import org.apache.commons.lang3.Validate;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.PriorityBlockingQueue;
 
@@ -42,6 +38,18 @@ public class PatientsRepository {
             ComparablePatient comparablePatient = new ComparablePatient(patient);
             if (waitingRoom.remove(comparablePatient)) {
                 waitingRoom.add(comparablePatient);
+            }
+
+            return patient;
+        }
+    }
+
+    public Patient getPatient(String patientName) {
+        Validate.notBlank(patientName, "Patient name cannot be blank");
+        synchronized (lock) {
+            Patient patient = patients.get(patientName);
+            if (patient == null) {
+                throw new IllegalArgumentException("Patient does not exist");
             }
 
             return patient;

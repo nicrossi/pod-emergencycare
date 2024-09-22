@@ -12,6 +12,12 @@ public class HistoryRepository {
     private final Object lock = "lock";
     private final static List<CaredInfo> history = new ArrayList<>();
 
+    public void addHistory(CaredInfo caredInfo) {
+        synchronized (lock) {
+            history.add(caredInfo);
+        }
+    }
+
     public void addHistory(final int roomId, Patient patient, Doctor doctor) {
         synchronized (lock) {
             CaredInfo entry = CaredInfo.newBuilder()

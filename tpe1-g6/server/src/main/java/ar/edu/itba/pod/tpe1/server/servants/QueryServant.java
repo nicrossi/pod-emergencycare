@@ -20,15 +20,18 @@ public class QueryServant extends QueryServiceGrpc.QueryServiceImplBase {
     }
 
 
-    public void QueryRooms(Empty request, StreamObserver<QueryRoomsResponse> responseObserver) {
+    @Override
+    public void queryRooms(Empty request, StreamObserver<QueryRoomsResponse> responseObserver) {
         //TODO: implement
     }
 
-    public void QueryWaitingRoom(Empty request, StreamObserver<QueryWaitingRoomResponse> responseObserver) {
+    @Override
+    public void queryWaitingRoom(Empty request, StreamObserver<QueryWaitingRoomResponse> responseObserver) {
         //TODO: implement
     }
 
-    public void QueryCares(QueryRequest request, StreamObserver<QueryCaresResponse> responseObserver) {
+    @Override
+    public void queryCares(QueryRequest request, StreamObserver<QueryCaresResponse> responseObserver) {
         List<CaredInfo> history = request.hasRoom() ?
                 historyRepository.getHistory(request.getRoom())
                 : historyRepository.getHistory();
