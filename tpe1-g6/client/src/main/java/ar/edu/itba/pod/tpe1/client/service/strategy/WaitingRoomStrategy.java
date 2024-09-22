@@ -2,6 +2,7 @@ package ar.edu.itba.pod.tpe1.client.service.strategy;
 
 import ar.edu.itba.pod.tpe1.client.service.util.WaitingRoomClientUtil;
 import ar.edu.itba.pod.tpe1.waitingRoom.Patient;
+import ar.edu.itba.pod.tpe1.waitingRoom.PatientState;
 import ar.edu.itba.pod.tpe1.waitingRoom.WaitingRoomServiceGrpc;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.stub.StreamObserver;
@@ -38,10 +39,29 @@ public class WaitingRoomStrategy extends AbstractServiceStrategy {
                 latch.countDown();
             }
         };
-        // TODO: implement
+        StreamObserver<PatientState> checkPatientObserver = new StreamObserver<>() {
+            @Override
+            public void onNext(PatientState ps) {
+                logger.info("Patient {} ({}) is in the waiting room with {} patients ahead",
+                        ps.getPatientName(), ps.getLevel(), ps.getQueuePlace());
+            }
+
+            @Override
+            public void onError(Throwable throwable) {
+                logger.error("Failed to check patient: {}", throwable.getMessage());
+                latch.countDown();
+            }
+
+            @Override
+            public void onCompleted() {
+                latch.countDown();
+            }
+        };
+
         return switch (action) {
             case "addPatient" -> () -> stub.addPatient(WaitingRoomClientUtil.getAddPatientRequest(), addPatientObserver);
             case "updateLevel" -> () -> stub.updateLevel(WaitingRoomClientUtil.getUpdateLevelRequest(), addPatientObserver);
+            case "checkPatient" -> () -> stub.checkPatient(WaitingRoomClientUtil.getCheckPatientRequest(), checkPatientObserver);
             default -> null;
         };
     }
