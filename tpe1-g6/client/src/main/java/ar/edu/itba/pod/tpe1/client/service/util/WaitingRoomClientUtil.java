@@ -1,6 +1,7 @@
 package ar.edu.itba.pod.tpe1.client.service.util;
 
 import ar.edu.itba.pod.tpe1.waitingRoom.Patient;
+import ar.edu.itba.pod.tpe1.waitingRoom.PatientCheck;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.Validate;
@@ -20,5 +21,12 @@ public class WaitingRoomClientUtil {
 
     public static Patient getUpdateLevelRequest() {
         return getAddPatientRequest();
+    }
+
+    public static PatientCheck getCheckPatientRequest() {
+        final String name = Validate.notBlank(System.getProperty("patient"), "Patient name is required");
+        return PatientCheck.newBuilder()
+                .setPatientName(name)
+                .build();
     }
 }
