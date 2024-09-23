@@ -5,11 +5,13 @@ import ar.edu.itba.pod.tpe1.emergencyCare.*;
 import ar.edu.itba.pod.tpe1.query.CaredInfo;
 import ar.edu.itba.pod.tpe1.server.repository.*;
 import ar.edu.itba.pod.tpe1.waitingRoom.Patient;
-import ar.edu.itba.pod.tpe1.waitingRoom.PatientState;
 import com.google.protobuf.Empty;
 import io.grpc.stub.StreamObserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Iterator;
+import java.util.Optional;
 
 public class EmergencyCareServant extends EmergencyCareServiceGrpc.EmergencyCareServiceImplBase {
     private static final Logger logger = LoggerFactory.getLogger(EmergencyCareServant.class);
@@ -32,35 +34,46 @@ public class EmergencyCareServant extends EmergencyCareServiceGrpc.EmergencyCare
 
     public void carePatient(CarePatientRequest request, StreamObserver<CarePatientResponse> responseObserver) {
         logger.info("Attending patient ...");
-
-        //TODO: remove this hardcoded mess
-        Patient patient = patientsRepository.getPatient("Foo");
-        Doctor doctor = doctorsRepository.getDoctor("John").get();
-        int roomId = roomsRepository.getRoomStatus(request.getRoom()) == RoomStatus.ROOM_STATUS_FREE ?
-                request.getRoom() : 1;
+        // TODO: we need to lock all repos until we either start care or find it isn't possible
+        int roomId = roomsRepository.getRoomStatus(request.getRoom()) == RoomStatus.ROOM_STATUS_FREE
+                     ? request.getRoom()
+                     : 1;
         roomsRepository.setRoomStatus(roomId, RoomStatus.ROOM_STATUS_OCCUPIED);
 
-        //TODO: we need to lock all repos until we either start care or find it isn't possible
-        CaredInfo caredInfo = careRepository.startCare(roomId, patient, doctor);
-        CarePatientInfo effect = CarePatientInfo.newBuilder()
-                .setDoctorName(doctor.getName())
-                .setDoctorLevel(doctor.getLevel())
-                .setPatientName(patient.getPatientName())
-                .setPatientLevel(patient.getLevel())
-                .build();
+        Iterator<Patient>  iter = patientsRepository.waitingRoomIterator();
+        Patient patient;
+        Doctor doctor;
+        while(iter.hasNext()) {
+            patient = iter.next();
+            Optional<Doctor> optionalDoctor = doctorsRepository.findNextAvailableDoctorClosestFit(patient.getLevel());
+            // if doctor si not found, then check another patient
+            if (optionalDoctor.isPresent()) {
+                doctor = optionalDoctor.get();
+                iter.remove();
 
-        CarePatientResponse.Builder careResp = CarePatientResponse.newBuilder()
-                .setRoom(roomId);
+                CaredInfo caredInfo = careRepository.startCare(roomId, patient, doctor);
+                CarePatientInfo effect = CarePatientInfo.newBuilder()
+                        .setDoctorName(doctor.getName())
+                        .setDoctorLevel(doctor.getLevel())
+                        .setPatientName(patient.getPatientName())
+                        .setPatientLevel(patient.getLevel())
+                        .build();
+                CarePatientResponse.Builder careResp = CarePatientResponse.newBuilder()
+                        .setRoom(roomId);
 
-        // if care couldn't be started, only set status
-        if (caredInfo != null) {
-            careResp.setEffect(effect);
-        }else {
-            careResp.setStatus(roomsRepository.getRoomStatus(roomId));
+                // if care couldn't be started, only set status
+                if (caredInfo != null) {
+                    careResp.setEffect(effect);
+                } else {
+                    careResp.setStatus(roomsRepository.getRoomStatus(roomId));
+                }
+
+                responseObserver.onNext(careResp.build());
+                responseObserver.onCompleted();
+                return;
+            }
         }
-
-        responseObserver.onNext(careResp.build());
-        responseObserver.onCompleted();
+        throw new IllegalStateException("No patient could be attended");
     }
 
     public void careAllPatients(Empty empty, StreamObserver<CareAllPatientsResponse> responseObserver) {
