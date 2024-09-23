@@ -58,7 +58,7 @@ public class DoctorsRepository {
 
     public Optional<Doctor> findNextAvailableDoctorClosestFit(int level) {
         synchronized (lock) {
-            for (int i = level; i < MAX_LEVEL; i++) {
+            for (int i = level; i <= MAX_LEVEL; i++) {
                 Map<String, Doctor> levelMap = doctorMap.get(i);
                 if (levelMap != null && !levelMap.isEmpty()) {
                     for (Doctor doctor : levelMap.values()) {
