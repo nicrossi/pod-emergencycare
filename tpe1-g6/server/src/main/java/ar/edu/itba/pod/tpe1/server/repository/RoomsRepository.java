@@ -45,4 +45,8 @@ public class RoomsRepository {
             return rooms.get(id);
         }
     }
+
+    public boolean isRoomAvailable(int roomId) {
+        return getRoomStatus(roomId) == RoomStatus.ROOM_STATUS_FREE;
+    }
 }

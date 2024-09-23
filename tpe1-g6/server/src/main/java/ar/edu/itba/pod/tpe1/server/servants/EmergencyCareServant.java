@@ -35,9 +35,11 @@ public class EmergencyCareServant extends EmergencyCareServiceGrpc.EmergencyCare
     public void carePatient(CarePatientRequest request, StreamObserver<CarePatientResponse> responseObserver) {
         logger.info("Attending patient ...");
         // TODO: we need to lock all repos until we either start care or find it isn't possible
-        int roomId = roomsRepository.getRoomStatus(request.getRoom()) == RoomStatus.ROOM_STATUS_FREE
-                     ? request.getRoom()
-                     : 1;
+        int roomId = request.getRoom();
+        if (!roomsRepository.isRoomAvailable(roomId)) {
+            throw new IllegalStateException("Room #" + roomId + " is not available.");
+
+        }
         roomsRepository.setRoomStatus(roomId, RoomStatus.ROOM_STATUS_OCCUPIED);
 
         Iterator<Patient>  iter = patientsRepository.waitingRoomIterator();
