@@ -6,6 +6,7 @@ import org.apache.commons.lang3.Validate;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -87,6 +88,47 @@ public class PatientsRepository {
     public Optional<Patient> peekWaitingRoomNextPatient() {
         return Optional.ofNullable(waitingRoom.peek())
                        .map(ComparablePatient::getPatient);
+    }
+
+    public Iterator<Patient> waitingRoomIterator() {
+        synchronized (lock) {
+            List<ComparablePatient> snapshot = new ArrayList<>(waitingRoom);
+            Collections.sort(snapshot);
+            return new WaitingRoomIterator(snapshot);
+        }
+    }
+
+    private class WaitingRoomIterator implements Iterator<Patient> {
+        private final List<ComparablePatient> snapshot;
+        private int currentIndex = 0;
+        private ComparablePatient lastReturned = null;
+
+        public WaitingRoomIterator(List<ComparablePatient> snapshot) {
+            this.snapshot = snapshot;
+        }
+
+        @Override
+        public boolean hasNext() {
+            return currentIndex < snapshot.size();
+        }
+
+        @Override
+        public Patient next() {
+            lastReturned = snapshot.get(currentIndex++);
+            return lastReturned.getPatient();
+        }
+
+        @Override
+        public void remove() {
+            if (lastReturned == null) {
+                throw new IllegalStateException("next() has not been called or remove() already called after the last call to next()");
+            }
+            synchronized (lock) {
+                waitingRoom.remove(lastReturned);
+                patients.remove(lastReturned.getName());
+            }
+            lastReturned = null;
+        }
     }
 }
 
