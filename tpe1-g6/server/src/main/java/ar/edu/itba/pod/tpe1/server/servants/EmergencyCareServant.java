@@ -1,5 +1,6 @@
 package ar.edu.itba.pod.tpe1.server.servants;
 
+import ar.edu.itba.pod.tpe1.administration.AvailabilityStatus;
 import ar.edu.itba.pod.tpe1.administration.Doctor;
 import ar.edu.itba.pod.tpe1.emergencyCare.*;
 import ar.edu.itba.pod.tpe1.query.CaredInfo;
@@ -51,6 +52,7 @@ public class EmergencyCareServant extends EmergencyCareServiceGrpc.EmergencyCare
             // if doctor si not found, then check another patient
             if (optionalDoctor.isPresent()) {
                 doctor = optionalDoctor.get();
+                doctor = doctorsRepository.setDoctorAvailabilityStatus(doctor, AvailabilityStatus.AVAILABILITY_STATUS_ATTENDING);
                 iter.remove();
 
                 CaredInfo caredInfo = careRepository.startCare(roomId, patient, doctor);
@@ -88,6 +90,7 @@ public class EmergencyCareServant extends EmergencyCareServiceGrpc.EmergencyCare
         CaredInfo caredInfo = careRepository.endCare(request.getRoom(), request.getPatientName(), request.getDoctorName());
         historyRepository.addHistory(caredInfo);
         roomsRepository.setRoomStatus(request.getRoom(), RoomStatus.ROOM_STATUS_FREE);
+        doctorsRepository.setDoctorAvailabilityStatus(caredInfo.getDoctor(), AvailabilityStatus.AVAILABILITY_STATUS_AVAILABLE);
 
         //TODO: there has to be a better way to do this...
         DischargePatientResponse response = DischargePatientResponse.newBuilder()

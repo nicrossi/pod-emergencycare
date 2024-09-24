@@ -50,6 +50,10 @@ public class DoctorsRepository {
         }
     }
 
+    public Doctor setDoctorAvailabilityStatus(Doctor doctor, AvailabilityStatus status) {
+        return modifyDoctor(doctor.toBuilder().setAvailability(status).build());
+    }
+
     public Optional<Doctor> getDoctor(String doctorName) {
         synchronized (lock) {
             return  Optional.ofNullable(doctors.get(doctorName));

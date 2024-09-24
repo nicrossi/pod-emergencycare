@@ -116,4 +116,17 @@ public class DoctorsRepositoryTest {
         repository.modifyDoctor(modifiedDoctor);
         assertEquals(modifiedDoctor, repository.getDoctor("JohnDoe").get());
     }
+
+    @Test
+    public void shouldSetDoctorsAvailabilityStatus() {
+        Doctor doctor = Doctor.newBuilder()
+                .setName("JohnDoe")
+                .setAvailability(AvailabilityStatus.AVAILABILITY_STATUS_AVAILABLE)
+                .setLevel(3)
+                .build();
+        repository.addDoctor(doctor);
+        assertEquals(AvailabilityStatus.AVAILABILITY_STATUS_AVAILABLE, doctor.getAvailability());
+        doctor = repository.setDoctorAvailabilityStatus(doctor, AvailabilityStatus.AVAILABILITY_STATUS_ATTENDING);
+        assertEquals(AvailabilityStatus.AVAILABILITY_STATUS_ATTENDING, doctor.getAvailability());
+    }
 }
