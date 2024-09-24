@@ -1,14 +1,8 @@
 package ar.edu.itba.pod.tpe1.server;
 
-import ar.edu.itba.pod.tpe1.server.repository.DoctorsRepository;
-import ar.edu.itba.pod.tpe1.server.repository.PatientsRepository;
-import ar.edu.itba.pod.tpe1.server.repository.RoomsRepository;
-import ar.edu.itba.pod.tpe1.server.servants.AdministrationServant;
-import ar.edu.itba.pod.tpe1.server.servants.DoctorPagerServant;
+import ar.edu.itba.pod.tpe1.server.repository.*;
+import ar.edu.itba.pod.tpe1.server.servants.*;
 import ar.edu.itba.pod.tpe1.server.interceptor.GlobalExceptionHandlerInterceptor;
-import ar.edu.itba.pod.tpe1.server.servants.HealthCheckServant;
-import ar.edu.itba.pod.tpe1.server.servants.QueryServant;
-import ar.edu.itba.pod.tpe1.server.servants.WaitingRoomServant;
 import io.grpc.ServerBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +15,8 @@ public class Server {
     private static final DoctorsRepository docRepo = new DoctorsRepository();
     private static final PatientsRepository patRepo = new PatientsRepository();
     private static final RoomsRepository rooRepo = new RoomsRepository();
+    private static final HistoryRepository hisRepo = new HistoryRepository();
+    private static final CareRespository carRepo = new CareRespository();
 
 
     public static void main(String[] args) throws InterruptedException, IOException {
@@ -31,8 +27,9 @@ public class Server {
                 .addService(new HealthCheckServant())
                 .addService(new AdministrationServant(docRepo, rooRepo))
                 .addService(new WaitingRoomServant(patRepo))
+                .addService(new EmergencyCareServant(patRepo, docRepo, rooRepo, hisRepo, carRepo))
                 .addService(new DoctorPagerServant())
-                .addService(new QueryServant())
+                .addService(new QueryServant(hisRepo))
                 .intercept(new GlobalExceptionHandlerInterceptor())
                 .build();
         server.start();
