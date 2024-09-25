@@ -1,0 +1,18 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Client Runner admin setDoctor" type="Application" factoryName="Application">
+    <option name="ALTERNATIVE_JRE_PATH" value="/lib/jvm/java-1.17.0-openjdk-amd64" />
+    <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
+    <option name="MAIN_CLASS_NAME" value="ar.edu.itba.pod.tpe1.client.Client" />
+    <module name="tpe1-g6-client" />
+    <option name="VM_PARAMETERS" value="-DserverAddress=localhost:50051 -Daction=setDoctor -Ddoctor=Jan -Davailability=attending -Dservice=AdministrationClient" />
+    <extension name="coverage">
+      <pattern>
+        <option name="PATTERN" value="ar.edu.itba.pod.tpe1.client.*" />
+        <option name="ENABLED" value="true" />
+      </pattern>
+    </extension>
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>
