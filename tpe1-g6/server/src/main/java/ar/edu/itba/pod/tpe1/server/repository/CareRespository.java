@@ -47,7 +47,7 @@ public class CareRespository {
                                     c.getPatient().getPatientName().equals(patientName)
                     ).findFirst().orElse(null);
             if (care == null) {
-                throw new IllegalArgumentException("No care registered for {} by {} in room #{}");
+                throw new IllegalArgumentException("No care registered for patient %s by doctor %s in room #%s".formatted(patientName, doctorName, roomId));
             }
             currentlyCared.remove(care);
 

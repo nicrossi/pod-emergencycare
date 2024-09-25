@@ -37,10 +37,11 @@ public class DoctorsRepository {
 
     public Doctor modifyDoctor(Doctor modifiedDoctor) {
         synchronized (lock) {
-            Doctor prevDoctor = doctors.get(modifiedDoctor.getName());
+            String name = modifiedDoctor.getName();
+            Doctor prevDoctor = doctors.get(name);
 
             if(prevDoctor == null) {
-                throw new IllegalArgumentException("Doctor not found");
+                throw new IllegalArgumentException("Doctor %s not found".formatted(name));
             }
 
             doctors.put(modifiedDoctor.getName(), modifiedDoctor);

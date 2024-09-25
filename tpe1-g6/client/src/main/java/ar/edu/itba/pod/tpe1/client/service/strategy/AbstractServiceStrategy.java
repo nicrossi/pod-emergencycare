@@ -1,6 +1,7 @@
 package ar.edu.itba.pod.tpe1.client.service.strategy;
 
 import io.grpc.ManagedChannel;
+import io.grpc.StatusRuntimeException;
 import org.slf4j.Logger;
 
 import java.util.Objects;
@@ -39,4 +40,12 @@ public abstract class AbstractServiceStrategy implements ServiceStrategy {
     }
 
     protected abstract Runnable getActionTask(String action, CountDownLatch latch);
+
+    protected void handleError(Throwable t) {
+        if (t instanceof StatusRuntimeException statusEx) {
+            logger.error(statusEx.getStatus().getDescription());
+        } else {
+            logger.error("An unexpected error occurred: {}", t.getMessage(), t);
+        }
+    }
 }

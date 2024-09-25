@@ -1,19 +1,16 @@
 package ar.edu.itba.pod.tpe1.server.repository;
 
 import ar.edu.itba.pod.tpe1.emergencyCare.RoomStatus;
+import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@NoArgsConstructor
 public class RoomsRepository {
     private final Object lock = "lock";
 
     private final List<RoomStatus> rooms = new ArrayList<>();
-
-
-    public RoomsRepository() {
-
-    }
 
     public int addRoom() {
         synchronized (lock) {
@@ -44,9 +41,5 @@ public class RoomsRepository {
             }
             return rooms.get(id);
         }
-    }
-
-    public boolean isRoomAvailable(int roomId) {
-        return getRoomStatus(roomId) == RoomStatus.ROOM_STATUS_FREE;
     }
 }
