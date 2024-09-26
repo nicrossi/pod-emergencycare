@@ -2,6 +2,25 @@
 
 Trabajo Práctico Especial 1 - Sala de Emergencias
 
+## Instrucciones
+
+### Build
+
+1. `cd` al root del proyecto.
+2. Ejecutar el comando `mvn clean install`.
+3. Descomprimir los builds del cliente y el servidor con los comandos: `tar -xzf tpe1-g6/client/target/tpe1-g6-client-2024.1Q-bin.tar.gz` y `tar -xzf tpe1-g6/server/target/tpe1-g6-server-2024.1Q-bin.tar.gz`, esto creara las carpetas `tpe1-g6-client-2024.1Q` y `tpe1-g6-server-2024.1Q`
+
+### Iniciar el servidor
+
+1. `cd` a `tpe1-g6-server-2024.1Q`.
+2. Ejecutar el comando `chmod +x ./run-server.sh`
+3. Correr el servidor usando `./run-server.sh`
+
+### Usar el cliente
+
+1. `cd` a `tpe1-g6-client-2024.1Q`.
+2. Dar permisos de ejecucion a los scripts `./administrationClient.sh`, `./waitingRoomClient.sh`, `./emergencyCareClient.sh`, `./doctorPagerClient.sh` y `./queryClient.sh`
+
 [>Ideas drawing board<](https://www.tldraw.com/r/FzBWHkJTyw66oXS636WQC?d=v-950.34.1358.1323.page)
 
 ## Concurrent main client, Fase 1
