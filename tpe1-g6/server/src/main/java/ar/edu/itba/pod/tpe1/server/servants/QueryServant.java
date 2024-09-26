@@ -1,8 +1,11 @@
 package ar.edu.itba.pod.tpe1.server.servants;
 
+import ar.edu.itba.pod.tpe1.emergencyCare.RoomStatus;
 import ar.edu.itba.pod.tpe1.query.*;
+import ar.edu.itba.pod.tpe1.server.repository.CareRespository;
 import ar.edu.itba.pod.tpe1.server.repository.HistoryRepository;
 import ar.edu.itba.pod.tpe1.server.repository.PatientsRepository;
+import ar.edu.itba.pod.tpe1.server.repository.RoomsRepository;
 import ar.edu.itba.pod.tpe1.waitingRoom.Patient;
 import com.google.protobuf.Empty;
 import io.grpc.stub.StreamObserver;
@@ -10,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.EmptyStackException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.locks.ReadWriteLock;
 
@@ -20,10 +24,14 @@ public class QueryServant extends QueryServiceGrpc.QueryServiceImplBase {
 
     private final HistoryRepository historyRepository;
     private final PatientsRepository patientsRepository;
+    private final RoomsRepository roomsRepository;
+    private final CareRespository careRespository;
 
-    public QueryServant(HistoryRepository hR, PatientsRepository pR, ReadWriteLock lock) {
+    public QueryServant(HistoryRepository hR, PatientsRepository pR, RoomsRepository rR, CareRespository cR, ReadWriteLock lock) {
         patientsRepository = pR;
         historyRepository = hR;
+        roomsRepository = rR;
+        careRespository = cR;
         this.lock = lock;
     }
 
@@ -31,6 +39,31 @@ public class QueryServant extends QueryServiceGrpc.QueryServiceImplBase {
     public void queryRooms(Empty request, StreamObserver<QueryRoomsResponse> responseObserver) {
         //TODO: implement
         //Room,Status,Patient,Doctor
+
+        QueryRoomsResponse.Builder responseBuilder = QueryRoomsResponse.newBuilder();
+        List<RoomStatus> rooms = roomsRepository.getRooms();
+
+        //listOfRooms with QueryRoomInfo
+        List<QueryRoomInfo> listOfRooms = new ArrayList<>();
+
+        for (int i = 0; i < rooms.size(); i++) {
+            RoomStatus status = rooms.get(i);
+            QueryRoomInfo.Builder roomInfoBuilder = QueryRoomInfo.newBuilder()
+                    .setRoomId(i + 1)
+                    .setStatus(status);
+
+
+            if (status == RoomStatus.ROOM_STATUS_OCCUPIED) {
+                CaredInfo care = careRespository.getCare(i + 1);
+                roomInfoBuilder.setDoctor(care.getDoctor()).setPatient(care.getPatient());
+            }
+            listOfRooms.add(roomInfoBuilder.build());
+        }
+
+        responseBuilder.addAllRoomsInfo(listOfRooms);
+
+        responseObserver.onNext(responseBuilder.build());
+        responseObserver.onCompleted();
     }
 
     @Override
