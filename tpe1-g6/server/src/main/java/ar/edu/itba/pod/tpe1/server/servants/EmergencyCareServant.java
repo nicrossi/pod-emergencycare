@@ -140,7 +140,6 @@ public class EmergencyCareServant extends EmergencyCareServiceGrpc.EmergencyCare
 
     public void dischargePatient(DischargePatientRequest request, StreamObserver<DischargePatientResponse> responseObserver) {
         logger.info("Discharging patient ...");
-        //remember to add to historyRepository! it's supposed to store completed cares
         CaredInfo caredInfo;
         lock.writeLock().lock();
         try{
