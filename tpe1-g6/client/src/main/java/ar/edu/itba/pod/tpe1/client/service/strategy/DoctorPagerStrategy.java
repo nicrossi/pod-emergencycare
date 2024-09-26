@@ -1,13 +1,11 @@
 package ar.edu.itba.pod.tpe1.client.service.strategy;
 
 import ar.edu.itba.pod.tpe1.client.service.util.DoctorPagerClientUtil;
-import ar.edu.itba.pod.tpe1.doctorPager.DoctorPagerRequest;
 import ar.edu.itba.pod.tpe1.doctorPager.DoctorPagerResponse;
 import ar.edu.itba.pod.tpe1.doctorPager.DoctorPagerServiceGrpc;
 import ar.edu.itba.pod.tpe1.doctorPager.DoctorPagerUnregisterResponse;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.StatusRuntimeException;
-import io.grpc.stub.StreamObserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,25 +23,6 @@ public class DoctorPagerStrategy extends AbstractServiceStrategy {
 
     @Override
     protected Runnable getActionTask(String action, CountDownLatch latch) {
-        StreamObserver<DoctorPagerRequest> unregisterObserver = new StreamObserver<>() {
-            @Override
-            public void onNext(DoctorPagerRequest request) {
-                logger.info("Doctor unregistered successfully");
-                latch.countDown();
-            }
-
-            @Override
-            public void onError(Throwable t) {
-                logger.error("Failed to unregister doctor: {}", t.getMessage(), t);
-                latch.countDown();
-            }
-
-            @Override
-            public void onCompleted() {
-                latch.countDown();
-            }
-        };
-
         return switch(action) {
             case "register" -> () -> {
                 try {
