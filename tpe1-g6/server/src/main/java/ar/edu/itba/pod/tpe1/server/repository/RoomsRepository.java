@@ -42,4 +42,11 @@ public class RoomsRepository {
             return rooms.get(id);
         }
     }
+
+    //get sorted rooms by id
+    public List<RoomStatus> getRooms() {
+        synchronized (lock) {
+            return new ArrayList<>(rooms);
+        }
+    }
 }
