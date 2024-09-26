@@ -12,30 +12,12 @@ option java_multiple_files = true;
 service DoctorPagerService {
   rpc Register(DoctorPagerRequest) returns (stream DoctorPagerResponse);
   rpc Unregister(DoctorPagerRequest) returns (DoctorPagerRequest);
-  //rpc History() is not needed :)
 }
 
 message DoctorPagerRequest {
   string doctorName = 1;
 }
-enum AttentionStatus {
-  ATTENTION_STATUS_UNSPECIFIED = 0;
-  ATTENTION_STATUS_REGISTERED = 1; //registered for pager
-  ATTENTION_STATUS_UNREGISTERED = 2; //unregistered pager
-  ATTENTION_STATUS_IDLE = 3;  //when available
-  ATTENTION_STATUS_BUSY = 4;  //when attending
-  ATTENTION_STATUS_DISCHARGE = 5; //when patient is discharged
-}
+
 message DoctorPagerResponse {
-  string doctorName = 1;
-  int32 doctorLevel = 2;
-  AttentionStatus attentionStatus = 3;
-  // if the doctor is now caring or discharging,
-  // the info on the patient and room is here:
-  optional CareInfo care = 4;
-}
-message CareInfo {
-  int32 room = 1;
-  string patientName = 2;
-  int32 patientLevel = 3;
+  string message = 1;
 }

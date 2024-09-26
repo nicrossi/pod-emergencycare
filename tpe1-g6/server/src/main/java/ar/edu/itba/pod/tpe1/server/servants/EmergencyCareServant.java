@@ -29,15 +29,18 @@ public class EmergencyCareServant extends EmergencyCareServiceGrpc.EmergencyCare
     private final DoctorsRepository doctorsRepository;
     private final HistoryRepository historyRepository;
     private final CareRespository careRepository;
+    private final DoctorPagerServant doctorPagerServant;
 
     private final ReadWriteLock lock;
 
-    public EmergencyCareServant(PatientsRepository pR, DoctorsRepository dR, RoomsRepository rR, HistoryRepository hR, CareRespository cR, ReadWriteLock lock) {
+    public EmergencyCareServant(PatientsRepository pR, DoctorsRepository dR, RoomsRepository rR, HistoryRepository hR, CareRespository cR,
+                                DoctorPagerServant pager, ReadWriteLock lock) {
         patientsRepository = pR;
         doctorsRepository = dR;
         roomsRepository = rR;
         historyRepository = hR;
         careRepository = cR;
+        doctorPagerServant = pager;
         this.lock = lock;
     }
 
@@ -73,6 +76,10 @@ public class EmergencyCareServant extends EmergencyCareServiceGrpc.EmergencyCare
                         if (caredInfo != null) {
                             roomsRepository.setRoomStatus(roomId, RoomStatus.ROOM_STATUS_OCCUPIED);
                             careResp.setEffect(effect);
+                            // notify doctor
+                            String messageEvent = "Patient %s (%s) and Doctor %s (%s) are now in Room #%d"
+                                    .formatted(patient.getPatientName(), patient.getLevel(), doctor.getName(), doctor.getLevel(), roomId);
+                            doctorPagerServant.notifyDoctor(doctor.getName(), messageEvent);
                         } else {
                             careResp.setStatus(currentRoomStatus);
                         }
@@ -146,6 +153,11 @@ public class EmergencyCareServant extends EmergencyCareServiceGrpc.EmergencyCare
             caredInfo = careRepository.endCare(request.getRoom(), request.getPatientName(), request.getDoctorName());
             historyRepository.addHistory(caredInfo);
             dischargeRoomAndDoctor(responseObserver, request.getRoom(), caredInfo.getDoctor());
+            // notify doctor
+            String messageEvent = "Patient %s (%s) has been discharged from Doctor %s (%s) and the Room #%d is now Free"
+                    .formatted(caredInfo.getPatient().getPatientName(), caredInfo.getPatient().getLevel(),
+                               caredInfo.getDoctor().getName(), caredInfo.getDoctor().getLevel(), caredInfo.getRoomId());
+            doctorPagerServant.notifyDoctor(caredInfo.getDoctor().getName(), messageEvent);
         } finally {
             lock.writeLock().unlock();
         }

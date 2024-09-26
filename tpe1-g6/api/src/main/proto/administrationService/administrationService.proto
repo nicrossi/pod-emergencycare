@@ -2,6 +2,7 @@ syntax = "proto3";
 
 import "google/protobuf/wrappers.proto";
 import "google/protobuf/empty.proto";
+import "google/protobuf/descriptor.proto";
 
 package administrationService;
 
@@ -21,11 +22,15 @@ message AddDoctorRequest {
   int32 level = 2;
 }
 
+extend google.protobuf.EnumValueOptions {
+  string string_name = 51234;
+}
+
 enum AvailabilityStatus {
-  AVAILABILITY_STATUS_UNSPECIFIED = 0;
-  AVAILABILITY_STATUS_AVAILABLE = 1;
-  AVAILABILITY_STATUS_UNAVAILABLE = 2;
-  AVAILABILITY_STATUS_ATTENDING = 3;
+  AVAILABILITY_STATUS_UNSPECIFIED = 0 [(string_name) = "Unspecified"];
+  AVAILABILITY_STATUS_AVAILABLE = 1 [(string_name) = "Available"];
+  AVAILABILITY_STATUS_UNAVAILABLE = 2 [(string_name) = "Unavailable"];
+  AVAILABILITY_STATUS_ATTENDING = 3 [(string_name) = "Attending"];
 }
 
 message SetDoctorRequest {

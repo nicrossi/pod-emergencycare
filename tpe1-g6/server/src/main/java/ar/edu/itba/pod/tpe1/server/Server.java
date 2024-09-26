@@ -22,6 +22,7 @@ public class Server {
 
     private static final ReadWriteLock lock = new ReentrantReadWriteLock();
 
+    private static final DoctorPagerServant doctorPagerServant = new DoctorPagerServant(docRepo);
 
     public static void main(String[] args) throws InterruptedException, IOException {
         logger.info(" Server Starting ...");
@@ -29,10 +30,10 @@ public class Server {
         int port = 50051;
         io.grpc.Server server = ServerBuilder.forPort(port)
                 .addService(new HealthCheckServant())
-                .addService(new AdministrationServant(docRepo, rooRepo, lock))
+                .addService(new AdministrationServant(docRepo, rooRepo, doctorPagerServant, lock))
                 .addService(new WaitingRoomServant(patRepo, lock))
-                .addService(new EmergencyCareServant(patRepo, docRepo, rooRepo, hisRepo, carRepo, lock))
-                .addService(new DoctorPagerServant())
+                .addService(new EmergencyCareServant(patRepo, docRepo, rooRepo, hisRepo, carRepo, doctorPagerServant, lock))
+                .addService(doctorPagerServant)
                 .addService(new QueryServant(hisRepo, patRepo, rooRepo, carRepo, lock))
                 .intercept(new GlobalExceptionHandlerInterceptor())
                 .build();
