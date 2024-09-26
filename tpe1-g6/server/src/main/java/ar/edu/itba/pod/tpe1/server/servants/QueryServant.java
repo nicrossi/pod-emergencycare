@@ -40,21 +40,26 @@ public class QueryServant extends QueryServiceGrpc.QueryServiceImplBase {
     @Override
     public void queryRooms(Empty request, StreamObserver<QueryRoomsResponse> responseObserver) {
         QueryRoomsResponse.Builder responseBuilder = QueryRoomsResponse.newBuilder();
-        List<RoomStatus> rooms = roomsRepository.getRooms();
 
         List<QueryRoomInfo> listOfRooms = new ArrayList<>();
 
-        for (int i = 0; i < rooms.size(); i++) {
-            String status = rooms.get(i).getValueDescriptor().getOptions().getExtension(stringName);
-            QueryRoomInfo.Builder roomInfoBuilder = QueryRoomInfo.newBuilder()
-                    .setRoomId(i + 1)
-                    .setStatus(status);
+        lock.readLock().lock();
+        try {
+            List<RoomStatus> rooms = roomsRepository.getRooms();
+            for (int i = 0; i < rooms.size(); i++) {
+                String status = rooms.get(i).getValueDescriptor().getOptions().getExtension(stringName);
+                QueryRoomInfo.Builder roomInfoBuilder = QueryRoomInfo.newBuilder()
+                        .setRoomId(i + 1)
+                        .setStatus(status);
 
-            if ("Occupied".equals(status)) {
-                CaredInfo care = careRespository.getCare(i + 1);
-                roomInfoBuilder.setDoctor(care.getDoctor()).setPatient(care.getPatient());
+                if ("Occupied".equals(status)) {
+                    CaredInfo care = careRespository.getCare(i + 1);
+                    roomInfoBuilder.setDoctor(care.getDoctor()).setPatient(care.getPatient());
+                }
+                listOfRooms.add(roomInfoBuilder.build());
             }
-            listOfRooms.add(roomInfoBuilder.build());
+        } finally {
+            lock.readLock().unlock();
         }
 
         responseBuilder.addAllRoomsInfo(listOfRooms);

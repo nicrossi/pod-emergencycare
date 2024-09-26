@@ -106,11 +106,12 @@ public class EmergencyCareServant extends EmergencyCareServiceGrpc.EmergencyCare
 
     public void careAllPatients(Empty empty, StreamObserver<CareAllPatientsResponse> responseObserver) {
         logger.info("Attending all patients ...");
-        List<RoomStatus> rooms = roomsRepository.getRooms();
         List<CarePatientResponse> carePatientResponses = new ArrayList<>();
         CareAllPatientsResponse.Builder response = CareAllPatientsResponse.newBuilder();
 
+        lock.writeLock().lock();
         try {
+            List<RoomStatus> rooms = roomsRepository.getRooms();
             for (int i = 0; i < rooms.size(); i++) {
                 int roomId = i + 1;
                 CarePatientRequest request = CarePatientRequest.newBuilder()
@@ -142,6 +143,8 @@ public class EmergencyCareServant extends EmergencyCareServiceGrpc.EmergencyCare
         } catch (Exception e) {
             logger.error("Error while caring for patients: {}", e.getMessage(), e);
             responseObserver.onError(Status.INTERNAL.withDescription("Error while caring for patients").asRuntimeException());
+        }finally{
+            lock.writeLock().unlock();
         }
     }
 
