@@ -9,17 +9,22 @@ import io.grpc.stub.StreamObserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.EmptyStackException;
 import java.util.List;
+import java.util.concurrent.locks.ReadWriteLock;
 
 public class QueryServant extends QueryServiceGrpc.QueryServiceImplBase {
     private static final Logger logger = LoggerFactory.getLogger(QueryServant.class);
 
+    private final ReadWriteLock lock;
+
     private final HistoryRepository historyRepository;
     private final PatientsRepository patientsRepository;
 
-    public QueryServant(HistoryRepository hR, PatientsRepository pR) {
+    public QueryServant(HistoryRepository hR, PatientsRepository pR, ReadWriteLock lock) {
         patientsRepository = pR;
         historyRepository = hR;
+        this.lock = lock;
     }
 
     @Override
@@ -30,15 +35,21 @@ public class QueryServant extends QueryServiceGrpc.QueryServiceImplBase {
 
     @Override
     public void queryWaitingRoom(Empty request, StreamObserver<QueryWaitingRoomResponse> responseObserver) {
-        // Check if there are any patients waiting
-        if (patientsRepository.getPatientsWaitingCount() == 0) {
-            // No patients, so no file should be created, just return an empty response
-            responseObserver.onCompleted();
-            return;
-        }
+        List<Patient> sortedPatients;
+        lock.readLock().lock();
+        try {
+            // Check if there are any patients waiting
+            if (patientsRepository.getPatientsWaitingCount() == 0) {
+                // No patients, so no file should be created, just return an empty response
+                responseObserver.onCompleted();
+                return;
+            }
 
-        // Get sorted patients
-        List<Patient> sortedPatients = patientsRepository.getSortedPatients();
+            // Get sorted patients
+            sortedPatients = patientsRepository.getSortedPatients();
+        } finally {
+            lock.readLock().unlock();
+        }
 
         // Build the response
         QueryWaitingRoomResponse.Builder responseBuilder = QueryWaitingRoomResponse.newBuilder();
@@ -53,9 +64,26 @@ public class QueryServant extends QueryServiceGrpc.QueryServiceImplBase {
 
     @Override
     public void queryCares(QueryRequest request, StreamObserver<QueryCaresResponse> responseObserver) {
-        List<CaredInfo> history = request.hasRoom() ?
-                historyRepository.getHistory(request.getRoom())
-                : historyRepository.getHistory();
+        List<CaredInfo> history;
+        lock.readLock().lock();
+        try {
+            history = request.hasRoom() ?
+                    historyRepository.getHistory(request.getRoom())
+                    : historyRepository.getHistory();
+        } finally {
+            lock.readLock().unlock();
+        }
+
+
+        if (history.isEmpty()) {
+            /*
+            StatusRuntimeException error = Status.ABORTED
+                    .withDescription("No emergency care has been solved yet")
+                    .asRuntimeException();
+            responseObserver.onError(error);
+             */
+            throw new EmptyStackException();
+        }
 
         QueryCaresResponse response = QueryCaresResponse.newBuilder()
                 .addAllHistory(history)

@@ -3,34 +3,41 @@ package ar.edu.itba.pod.tpe1.server.servants;
 import ar.edu.itba.pod.tpe1.administration.*;
 import ar.edu.itba.pod.tpe1.server.repository.DoctorsRepository;
 import ar.edu.itba.pod.tpe1.server.repository.RoomsRepository;
-import com.google.protobuf.Any;
 import com.google.protobuf.Int32Value;
 import com.google.protobuf.StringValue;
 import com.google.protobuf.Empty;
-import com.google.rpc.Code;
-import com.google.rpc.ErrorInfo;
-import com.google.rpc.StatusProto;
 import io.grpc.stub.StreamObserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
+import java.util.concurrent.locks.ReadWriteLock;
 
 public class AdministrationServant extends AdministrationServiceGrpc.AdministrationServiceImplBase {
     private static final Logger logger = LoggerFactory.getLogger(AdministrationServant.class);
 
+    private final ReadWriteLock lock;
     private final RoomsRepository roomsRepository;
     private final DoctorsRepository doctorsRepository;
 
-    public AdministrationServant(DoctorsRepository dR, RoomsRepository rR) {
+    public AdministrationServant(DoctorsRepository dR, RoomsRepository rR, ReadWriteLock lock) {
         roomsRepository = rR;
         doctorsRepository = dR;
+        this.lock = lock;
     }
 
 
     public void addRoom(Empty empty, StreamObserver<Int32Value> responseObserver) {
         logger.info("Adding room ...");
-        int roomId = roomsRepository.addRoom();
+        int roomId;
+
+        lock.writeLock().lock();
+        try{
+            roomId = roomsRepository.addRoom();
+        }finally{
+            lock.writeLock().unlock();
+        }
+
         logger.info("Added room #{}", roomId);
         responseObserver.onNext(Int32Value.of(roomId));
         responseObserver.onCompleted();
@@ -43,21 +50,45 @@ public class AdministrationServant extends AdministrationServiceGrpc.Administrat
                 .setLevel(request.getLevel())
                 .build();
         logger.info("Added doctor {}", reqDoctor);
-        Doctor response = doctorsRepository.addDoctor(reqDoctor);
+
+        Doctor response;
+
+        lock.writeLock().lock();
+        try{
+            response = doctorsRepository.addDoctor(reqDoctor);
+        }finally{
+            lock.writeLock().unlock();
+        }
+
         responseObserver.onNext(response);
         responseObserver.onCompleted();
     }
 
     public void setDoctor(SetDoctorRequest request, StreamObserver<Doctor> responseObserver) {
         logger.info("Setting doctor ...");
-        Optional<Doctor> prevDoctor = doctorsRepository.getDoctor(request.getDoctorName());
+
+        Optional<Doctor> prevDoctor;
+        lock.readLock().lock();
+        try{
+            prevDoctor= doctorsRepository.getDoctor(request.getDoctorName());
+        }finally{
+            lock.readLock().unlock();
+        }
 
         prevDoctor.ifPresentOrElse(doctor -> {
             Doctor nextDoctor = doctor.toBuilder().setAvailability(request.getAvailability()).build();
             if (doctor.getAvailability() == AvailabilityStatus.AVAILABILITY_STATUS_ATTENDING) {
                 throw new IllegalArgumentException("Doctor is already attending");
             }
-            Doctor response = doctorsRepository.modifyDoctor(nextDoctor);
+
+            Doctor response;
+            lock.writeLock().lock();
+            try{
+                response = doctorsRepository.modifyDoctor(nextDoctor);
+            }finally{
+                lock.writeLock().unlock();
+            }
+
             responseObserver.onNext(response);
             responseObserver.onCompleted();
         }, () -> {
@@ -67,7 +98,15 @@ public class AdministrationServant extends AdministrationServiceGrpc.Administrat
 
     public void checkDoctor(StringValue request, StreamObserver<Doctor> responseObserver) {
         logger.info("Checking doctor ...");
-        Optional<Doctor> reqDoctor = doctorsRepository.getDoctor(request.getValue());
+
+        Optional<Doctor> reqDoctor;
+
+        lock.readLock().lock();
+        try{
+            reqDoctor= doctorsRepository.getDoctor(request.getValue());
+        }finally {
+            lock.readLock().unlock();
+        }
 
         reqDoctor.ifPresentOrElse(
                 doctor -> {

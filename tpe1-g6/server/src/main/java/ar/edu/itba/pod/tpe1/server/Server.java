@@ -8,6 +8,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class Server {
     private static final Logger logger = LoggerFactory.getLogger(Server.class);
@@ -18,6 +20,8 @@ public class Server {
     private static final HistoryRepository hisRepo = new HistoryRepository();
     private static final CareRespository carRepo = new CareRespository();
 
+    private static final ReadWriteLock lock = new ReentrantReadWriteLock();
+
 
     public static void main(String[] args) throws InterruptedException, IOException {
         logger.info(" Server Starting ...");
@@ -25,11 +29,11 @@ public class Server {
         int port = 50051;
         io.grpc.Server server = ServerBuilder.forPort(port)
                 .addService(new HealthCheckServant())
-                .addService(new AdministrationServant(docRepo, rooRepo))
-                .addService(new WaitingRoomServant(patRepo))
-                .addService(new EmergencyCareServant(patRepo, docRepo, rooRepo, hisRepo, carRepo))
+                .addService(new AdministrationServant(docRepo, rooRepo, lock))
+                .addService(new WaitingRoomServant(patRepo, lock))
+                .addService(new EmergencyCareServant(patRepo, docRepo, rooRepo, hisRepo, carRepo, lock))
                 .addService(new DoctorPagerServant())
-                .addService(new QueryServant(hisRepo, patRepo))
+                .addService(new QueryServant(hisRepo, patRepo, lock))
                 .intercept(new GlobalExceptionHandlerInterceptor())
                 .build();
         server.start();
