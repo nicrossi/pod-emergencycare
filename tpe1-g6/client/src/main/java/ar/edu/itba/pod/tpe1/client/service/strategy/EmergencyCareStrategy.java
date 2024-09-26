@@ -56,7 +56,7 @@ public class EmergencyCareStrategy extends AbstractServiceStrategy {
         StreamObserver<DischargePatientResponse> dischargePatientObserver = new StreamObserver<>() {
             @Override
             public void onNext(DischargePatientResponse value) {
-                logger.info("Patient {} ({}) has been discharged from Doctor {} ({}) ard the Room #{} is now Free",
+                logger.info("Patient {} ({}) has been discharged from Doctor {} ({}) and the Room #{} is now Free",
                         value.getPatientName(),
                         value.getPatientLevel(),
                         value.getDoctorName(),
