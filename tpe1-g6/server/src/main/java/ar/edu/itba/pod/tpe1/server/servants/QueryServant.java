@@ -39,13 +39,9 @@ public class QueryServant extends QueryServiceGrpc.QueryServiceImplBase {
 
     @Override
     public void queryRooms(Empty request, StreamObserver<QueryRoomsResponse> responseObserver) {
-        //TODO: implement
-        //Room,Status,Patient,Doctor
-
         QueryRoomsResponse.Builder responseBuilder = QueryRoomsResponse.newBuilder();
         List<RoomStatus> rooms = roomsRepository.getRooms();
 
-        //listOfRooms with QueryRoomInfo
         List<QueryRoomInfo> listOfRooms = new ArrayList<>();
 
         for (int i = 0; i < rooms.size(); i++) {
@@ -53,7 +49,6 @@ public class QueryServant extends QueryServiceGrpc.QueryServiceImplBase {
             QueryRoomInfo.Builder roomInfoBuilder = QueryRoomInfo.newBuilder()
                     .setRoomId(i + 1)
                     .setStatus(status);
-
 
             if ("Occupied".equals(status)) {
                 CaredInfo care = careRespository.getCare(i + 1);
@@ -100,31 +95,39 @@ public class QueryServant extends QueryServiceGrpc.QueryServiceImplBase {
     @Override
     public void queryCares(QueryRequest request, StreamObserver<QueryCaresResponse> responseObserver) {
         List<CaredInfo> history;
+
+        // Acquire a read lock before accessing the shared history repository
         lock.readLock().lock();
         try {
-            history = request.hasRoom() ?
-                    historyRepository.getHistory(request.getRoom())
-                    : historyRepository.getHistory();
+            // Check if we should filter by a specific room
+            if (request.hasRoom()) {
+                int roomNumber = request.getRoom();
+                history = historyRepository.getHistory(roomNumber);
+            } else {
+                // No filter, return the entire care history
+                history = historyRepository.getHistory();
+            }
         } finally {
             lock.readLock().unlock();
         }
 
-
+        // If the history is empty, no cares have been resolved
         if (history.isEmpty()) {
-            /*
-            StatusRuntimeException error = Status.ABORTED
-                    .withDescription("No emergency care has been solved yet")
-                    .asRuntimeException();
-            responseObserver.onError(error);
-             */
-            throw new EmptyStackException();
+            // Log the issue and do not create a CSV file
+            logger.warn("No emergency care has been solved yet. No file will be created.");
+            responseObserver.onError(new EmptyStackException());  // Or StatusRuntimeException if preferred
+            return;
         }
 
-        QueryCaresResponse response = QueryCaresResponse.newBuilder()
-                .addAllHistory(history)
-                .build();
+        // Build the response using the resolved care information
+        QueryCaresResponse.Builder responseBuilder = QueryCaresResponse.newBuilder();
+        for (CaredInfo care : history) {
+            responseBuilder.addHistory(care);  // Add each care entry to the response
+        }
 
-        responseObserver.onNext(response);
+        // Send the response back to the client
+        responseObserver.onNext(responseBuilder.build());
         responseObserver.onCompleted();
     }
+
 }

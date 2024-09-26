@@ -118,7 +118,13 @@ public class QueryStrategy extends AbstractServiceStrategy {
                         QueryClientUtil::mapCaredInfo
                 );
                 //TODO: actually make a file...
-                logger.info(buffer);
+                try (BufferedWriter writer = new BufferedWriter
+                        (new FileWriter(outPath))) {
+                    writer.write(buffer);
+                    logger.info("CSV file successfully written to {}", outPath);
+                } catch (IOException e) {
+                    logger.error("Error writing CSV file: {}", e.getMessage(), e);
+                }
             }
 
             @Override
