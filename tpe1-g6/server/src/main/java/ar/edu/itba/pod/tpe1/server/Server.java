@@ -33,7 +33,7 @@ public class Server {
                 .addService(new WaitingRoomServant(patRepo, lock))
                 .addService(new EmergencyCareServant(patRepo, docRepo, rooRepo, hisRepo, carRepo, lock))
                 .addService(new DoctorPagerServant())
-                .addService(new QueryServant(hisRepo, patRepo, lock))
+                .addService(new QueryServant(hisRepo, patRepo, rooRepo, carRepo, lock))
                 .intercept(new GlobalExceptionHandlerInterceptor())
                 .build();
         server.start();
