@@ -48,6 +48,7 @@ public class AdministrationServant extends AdministrationServiceGrpc.Administrat
         Doctor reqDoctor = Doctor.newBuilder()
                 .setName(request.getDoctorName())
                 .setLevel(request.getLevel())
+                .setAvailability(AvailabilityStatus.AVAILABILITY_STATUS_UNAVAILABLE)
                 .build();
         logger.info("Added doctor {}", reqDoctor);
 
@@ -66,6 +67,9 @@ public class AdministrationServant extends AdministrationServiceGrpc.Administrat
 
     public void setDoctor(SetDoctorRequest request, StreamObserver<Doctor> responseObserver) {
         logger.info("Setting doctor ...");
+        if(request.getAvailability() == AvailabilityStatus.AVAILABILITY_STATUS_ATTENDING) {
+            throw new IllegalArgumentException("Only 'available' and 'unavailable' are allowed");
+        }
 
         Optional<Doctor> prevDoctor;
         lock.readLock().lock();
