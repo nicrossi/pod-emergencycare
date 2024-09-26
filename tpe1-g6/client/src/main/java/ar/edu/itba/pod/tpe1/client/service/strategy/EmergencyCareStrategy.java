@@ -3,16 +3,17 @@ package ar.edu.itba.pod.tpe1.client.service.strategy;
 import ar.edu.itba.pod.tpe1.client.service.util.EmergencyCareUtil;
 import ar.edu.itba.pod.tpe1.emergencyCare.CareAllPatientsResponse;
 import ar.edu.itba.pod.tpe1.emergencyCare.CarePatientResponse;
-import ar.edu.itba.pod.tpe1.emergencyCare.DischargePatientRequest;
 import ar.edu.itba.pod.tpe1.emergencyCare.DischargePatientResponse;
 import ar.edu.itba.pod.tpe1.emergencyCare.EmergencyCareServiceGrpc;
+import com.google.protobuf.Empty;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.stub.StreamObserver;
-import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.CountDownLatch;
+
+import static ar.edu.itba.pod.tpe1.emergencyCare.EmergencyCareServiceModel.stringName;
 
 public class EmergencyCareStrategy extends AbstractServiceStrategy {
     private static final Logger logger = LoggerFactory.getLogger(EmergencyCareStrategy.class);
@@ -25,21 +26,10 @@ public class EmergencyCareStrategy extends AbstractServiceStrategy {
 
     @Override
     protected Runnable getActionTask(String action, CountDownLatch latch) {
-        // TODO: implement
         StreamObserver<CarePatientResponse> carePatientObserver = new StreamObserver<>() {
             @Override
             public void onNext(CarePatientResponse value) {
-                int roomNumber = value.getRoom();
-                if (value.hasStatus()) {
-                    logger.info("Room #{} remains {}", roomNumber, value.getStatus());
-                } else {
-                    logger.info("Patient {} ({}) and Doctor {} ({}) are now in Room #{}",
-                            value.getEffect().getPatientName(),
-                            value.getEffect().getPatientLevel(),
-                            value.getEffect().getDoctorName(),
-                            value.getEffect().getDoctorLevel(),
-                            roomNumber);
-                }
+                handleCarePatientResponse(value);
             }
 
             @Override
@@ -67,7 +57,6 @@ public class EmergencyCareStrategy extends AbstractServiceStrategy {
 
             @Override
             public void onError(Throwable t) {
-                logger.error("An error occurred while discharging a patient");
                 handleError(t);
                 latch.countDown();
             }
@@ -80,8 +69,7 @@ public class EmergencyCareStrategy extends AbstractServiceStrategy {
         StreamObserver<CareAllPatientsResponse> careAllPatientsObserver = new StreamObserver<>() {
             @Override
             public void onNext(CareAllPatientsResponse value) {
-//                logger.info("All patients have been cared for. Doctors: {}",
-//                        value.getDoctorsList().toString());
+                value.getStatesList().forEach(EmergencyCareStrategy::handleCarePatientResponse);
             }
 
             @Override
@@ -96,12 +84,25 @@ public class EmergencyCareStrategy extends AbstractServiceStrategy {
             }
         };
 
-
-        //TODO: implement the rest
         return switch (action) {
             case "carePatient" -> () -> stub.carePatient(EmergencyCareUtil.getCarePatientRequest(), carePatientObserver);
             case "dischargePatient" -> () -> stub.dischargePatient(EmergencyCareUtil.getDischargePatientRequest(), dischargePatientObserver);
+            case "careAllPatients" -> () -> stub.careAllPatients(Empty.newBuilder().build(), careAllPatientsObserver);
             default -> null;
         };
+    }
+
+    private static void handleCarePatientResponse(CarePatientResponse response) {
+        if (response.hasStatus()) {
+            String statusName = response.getStatus().getValueDescriptor().getOptions().getExtension(stringName);
+            logger.info("Room #{} remains {}", response.getRoom(), statusName);
+        } else {
+            logger.info("Patient {} ({}) and Doctor {} ({}) are now in Room #{}",
+                    response.getEffect().getPatientName(),
+                    response.getEffect().getPatientLevel(),
+                    response.getEffect().getDoctorName(),
+                    response.getEffect().getDoctorLevel(),
+                    response.getRoom());
+        }
     }
 }
