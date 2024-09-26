@@ -43,7 +43,7 @@ public class QueryClientUtil {
             Doctor doctor = queryRoomInfo.getDoctor();
             builder.append(doctor.getName() + " (" + doctor.getLevel() + ")");
         }
-        builder.append("\n");
+//        builder.append("\n");
         return builder.toString();
     }
 
