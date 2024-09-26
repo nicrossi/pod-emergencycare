@@ -4,12 +4,7 @@ import ar.edu.itba.pod.tpe1.server.model.ComparablePatient;
 import ar.edu.itba.pod.tpe1.waitingRoom.*;
 import org.apache.commons.lang3.Validate;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.PriorityBlockingQueue;
 
@@ -25,7 +20,7 @@ public class PatientsRepository {
         Validate.isTrue(patient.getLevel() >= MIN_LEVEL && patient.getLevel() <= MAX_LEVEL, "Patient level out of range");
 
         synchronized (lock) {
-            Validate.isTrue(!patients.containsKey(patient.getPatientName()), "Patient already exist");
+            Validate.isTrue(!patients.containsKey(patient.getPatientName()), "Patient already exists");
 
             ComparablePatient cp = new ComparablePatient(patient);
             patients.put(patient.getPatientName(), cp);
@@ -129,6 +124,19 @@ public class PatientsRepository {
             }
             lastReturned = null;
         }
+    }
+
+    public List<Patient> getSortedPatients() {
+        // Sort patients by emergency level (assuming Patient has a getLevel() method)
+        return collectPatients(waitingRoomIterator());
+    }
+
+    private List<Patient> collectPatients(Iterator<Patient> iterator) {
+        List<Patient> patients = new ArrayList<>();
+        while (iterator.hasNext()) {
+            patients.add(iterator.next());
+        }
+        return patients;
     }
 }
 

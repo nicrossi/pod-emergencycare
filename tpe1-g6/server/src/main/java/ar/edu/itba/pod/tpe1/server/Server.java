@@ -29,7 +29,7 @@ public class Server {
                 .addService(new WaitingRoomServant(patRepo))
                 .addService(new EmergencyCareServant(patRepo, docRepo, rooRepo, hisRepo, carRepo))
                 .addService(new DoctorPagerServant())
-                .addService(new QueryServant(hisRepo))
+                .addService(new QueryServant(hisRepo, patRepo))
                 .intercept(new GlobalExceptionHandlerInterceptor())
                 .build();
         server.start();

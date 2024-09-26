@@ -8,6 +8,10 @@ import io.grpc.stub.StreamObserver;
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
 
 public class QueryStrategy extends AbstractServiceStrategy {
@@ -52,13 +56,27 @@ public class QueryStrategy extends AbstractServiceStrategy {
             @Override
             public void onNext(QueryWaitingRoomResponse value) {
                 logger.info("Received query waiting room response: {}", value);
+
+                // Check if there are patients
+                if (value.getPatientsInfoList().isEmpty()) {
+                    logger.warn("No patients in the waiting room. No file will be created.");
+                    return;
+                }
+
+                // Convert the response to CSV format
                 String buffer = QueryClientUtil.convertToCSV(
                         QueryClientUtil.QueryWaitingRoomHeaders,
                         value.getPatientsInfoList(),
                         QueryClientUtil::mapQueryWaitingRoomInfo
                 );
-                //TODO: actually make a file...
-                logger.info(buffer);
+
+                // Write the CSV data to the file
+                try (BufferedWriter writer = new BufferedWriter(new FileWriter(outPath))) {
+                    writer.write(buffer);
+                    logger.info("CSV file successfully written to {}", outPath);
+                } catch (IOException e) {
+                    logger.error("Error writing CSV file: {}", e.getMessage(), e);
+                }
             }
 
             @Override
@@ -105,5 +123,4 @@ public class QueryStrategy extends AbstractServiceStrategy {
             default -> null;
         };
     }
-
 }
