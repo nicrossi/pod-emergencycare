@@ -13,17 +13,21 @@ import org.slf4j.LoggerFactory;
 import java.util.Optional;
 import java.util.concurrent.locks.ReadWriteLock;
 
+import static ar.edu.itba.pod.tpe1.administration.AdministrationServiceModel.stringName;
+
 public class AdministrationServant extends AdministrationServiceGrpc.AdministrationServiceImplBase {
     private static final Logger logger = LoggerFactory.getLogger(AdministrationServant.class);
 
     private final ReadWriteLock lock;
     private final RoomsRepository roomsRepository;
     private final DoctorsRepository doctorsRepository;
+    private final DoctorPagerServant doctorPagerServant;
 
-    public AdministrationServant(DoctorsRepository dR, RoomsRepository rR, ReadWriteLock lock) {
+    public AdministrationServant(DoctorsRepository dR, RoomsRepository rR, DoctorPagerServant pager, ReadWriteLock lock) {
         roomsRepository = rR;
         doctorsRepository = dR;
         this.lock = lock;
+        this.doctorPagerServant = pager;
     }
 
 
@@ -87,9 +91,15 @@ public class AdministrationServant extends AdministrationServiceGrpc.Administrat
 
             Doctor response;
             lock.writeLock().lock();
-            try{
+            try {
                 response = doctorsRepository.modifyDoctor(nextDoctor);
-            }finally{
+                // notify doctor
+                String eventMessage  = "Doctor %s (%s) is %s".formatted(
+                        response.getName(),
+                        response.getLevel(),
+                        response.getAvailability().getValueDescriptor().getOptions().getExtension(stringName));
+                doctorPagerServant.notifyDoctor(response.getName(), eventMessage);
+            } finally {
                 lock.writeLock().unlock();
             }
 
