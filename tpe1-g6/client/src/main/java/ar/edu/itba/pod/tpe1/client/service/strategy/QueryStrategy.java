@@ -32,24 +32,41 @@ public class QueryStrategy extends AbstractServiceStrategy {
             @Override
             public void onNext(QueryRoomsResponse value) {
                 logger.info("Received query rooms response: {}", value);
+
+                // Check if there are rooms in the response
+                if (value.getRoomsInfoList().isEmpty()) {
+                    logger.warn("No rooms have been created yet. No file will be created.");
+                    return;
+                }
+
+                // Convert the response to CSV format
                 String buffer = QueryClientUtil.convertToCSV(
-                        QueryClientUtil.QueryRoomsHeaders,
-                        value.getRoomsInfoList(),
-                        QueryClientUtil::mapQueryRoomInfo
+                        QueryClientUtil.QueryRoomsHeaders,    // CSV headers for rooms
+                        value.getRoomsInfoList(),             // List of room information
+                        QueryClientUtil::mapQueryRoomInfo     // Mapping function to format room info for CSV
                 );
-                //TODO: actually make a file...
-                logger.info(buffer);
+
+                // Write the CSV data to the file
+                try (BufferedWriter writer = new BufferedWriter(new FileWriter(outPath))) {
+                    writer.write(buffer);  // Write CSV content to the specified file
+                    logger.info("CSV file successfully written to {}", outPath);
+                } catch (IOException e) {
+                    logger.error("Error writing CSV file: {}", e.getMessage(), e);
+                }
             }
+
             @Override
             public void onError(Throwable t) {
-                logger.error("No rooms have been created yet: {}", t.getMessage(), t);
-                latch.countDown();
+                logger.error("Failed to query rooms: {}", t.getMessage(), t);
+                latch.countDown();  // Countdown the latch to indicate the task is complete, even in error
             }
+
             @Override
             public void onCompleted() {
-                latch.countDown();
+                latch.countDown();  // Countdown the latch when the operation is completed
             }
         };
+
 
         StreamObserver<QueryWaitingRoomResponse> queryWaitingRoomObserver = new StreamObserver<>() {
 
