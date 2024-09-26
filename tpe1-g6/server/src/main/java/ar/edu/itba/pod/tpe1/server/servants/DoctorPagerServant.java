@@ -4,6 +4,7 @@ import ar.edu.itba.pod.tpe1.administration.Doctor;
 import ar.edu.itba.pod.tpe1.doctorPager.DoctorPagerRequest;
 import ar.edu.itba.pod.tpe1.doctorPager.DoctorPagerResponse;
 import ar.edu.itba.pod.tpe1.doctorPager.DoctorPagerServiceGrpc;
+import ar.edu.itba.pod.tpe1.doctorPager.DoctorPagerUnregisterResponse;
 import ar.edu.itba.pod.tpe1.server.repository.DoctorsRepository;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
@@ -25,6 +26,7 @@ public class DoctorPagerServant extends DoctorPagerServiceGrpc.DoctorPagerServic
         this.doctorsRepository = doctorsRepository;
     }
 
+    @Override
     public void register(final DoctorPagerRequest request, final StreamObserver<DoctorPagerResponse> responseObserver) {
         String doctorName = request.getDoctorName();
         Doctor doctor = doctorsRepository.getDoctor(doctorName).orElseThrow(() -> {
@@ -32,7 +34,7 @@ public class DoctorPagerServant extends DoctorPagerServiceGrpc.DoctorPagerServic
             responseObserver.onError(error);
             return error;
         });
-        logger.info("Registering doctor: {} for live notifications", doctorName);
+        logger.info("Registering doctor: {} for pager notifications", doctorName);
         if (!doctorObservers.containsKey(doctorName)) {
             doctorObservers.put(doctorName, responseObserver);
             String message = "Doctor %s (%s) registered successfully for pager".formatted(doctorName, doctor.getLevel());
@@ -42,7 +44,6 @@ public class DoctorPagerServant extends DoctorPagerServiceGrpc.DoctorPagerServic
                     .build());
         } else {
             String message = "Doctor %s (%s) already registered for pager".formatted(doctorName, doctor.getLevel());
-            logger.error(message);
             StatusRuntimeException sre = Status.FAILED_PRECONDITION
                     .withDescription(message)
                     .asRuntimeException();
@@ -51,8 +52,30 @@ public class DoctorPagerServant extends DoctorPagerServiceGrpc.DoctorPagerServic
         }
     }
 
-    public void unregister(final DoctorPagerRequest request, final StreamObserver<DoctorPagerRequest> responseObserver) {
-        logger.info("unregister doctor ...");
+    public void unregister(final DoctorPagerRequest request, final StreamObserver<DoctorPagerUnregisterResponse> responseObserver) {
+        String doctorName = request.getDoctorName();
+        logger.info("Unregistering doctor: {} from pager notifications", doctorName);
+        StreamObserver<DoctorPagerResponse> observer = doctorObservers.remove(doctorName);
+        if (observer != null) {
+            observer.onCompleted();
+            Doctor doctor = doctorsRepository.getDoctor(doctorName).orElseThrow(() -> {
+                RuntimeException error = new IllegalArgumentException("Doctor not found");
+                responseObserver.onError(error);
+                return error;
+            });
+            responseObserver.onNext(DoctorPagerUnregisterResponse.newBuilder()
+                    .setDoctorName(doctorName)
+                    .setDoctorLevel(doctor.getLevel())
+                    .build());
+        } else {
+            String message = "Doctor %s was not registered for pager notifications".formatted(doctorName);
+            StatusRuntimeException sre = Status.FAILED_PRECONDITION
+                    .withDescription(message)
+                    .asRuntimeException();
+            responseObserver.onError(sre);
+            throw sre;
+        }
+        responseObserver.onCompleted();
     }
 
     public void notifyDoctor(String doctorName, String eventMessage) {

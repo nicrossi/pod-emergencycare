@@ -11,7 +11,7 @@ option java_multiple_files = true;
 
 service DoctorPagerService {
   rpc Register(DoctorPagerRequest) returns (stream DoctorPagerResponse);
-  rpc Unregister(DoctorPagerRequest) returns (DoctorPagerRequest);
+  rpc Unregister(DoctorPagerRequest) returns (DoctorPagerUnregisterResponse);
 }
 
 message DoctorPagerRequest {
@@ -20,4 +20,9 @@ message DoctorPagerRequest {
 
 message DoctorPagerResponse {
   string message = 1;
+}
+
+message DoctorPagerUnregisterResponse {
+  string doctorName = 1;
+  int32 doctorLevel = 2;
 }

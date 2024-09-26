@@ -4,6 +4,7 @@ import ar.edu.itba.pod.tpe1.client.service.util.DoctorPagerClientUtil;
 import ar.edu.itba.pod.tpe1.doctorPager.DoctorPagerRequest;
 import ar.edu.itba.pod.tpe1.doctorPager.DoctorPagerResponse;
 import ar.edu.itba.pod.tpe1.doctorPager.DoctorPagerServiceGrpc;
+import ar.edu.itba.pod.tpe1.doctorPager.DoctorPagerUnregisterResponse;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
@@ -55,7 +56,14 @@ public class DoctorPagerStrategy extends AbstractServiceStrategy {
                     handleError(se);
                 }
             };
-//            case "unregister" -> () -> stub.unregister(DoctorPagerClientUtil.getDoctorPagerRequest(), unregisterObserver);
+            case "unregister" -> () -> {
+                try {
+                    final DoctorPagerUnregisterResponse response = stub.unregister(DoctorPagerClientUtil.getDoctorPagerRequest());
+                    logger.info("Doctor {} ({}) unregistered successfully for pager", response.getDoctorName(), response.getDoctorLevel());
+                } catch (StatusRuntimeException se) {
+                    handleError(se);
+                }
+            };
             default -> null;
         };
     }
