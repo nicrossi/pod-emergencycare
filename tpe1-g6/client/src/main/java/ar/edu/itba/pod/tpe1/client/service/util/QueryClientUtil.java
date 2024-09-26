@@ -65,7 +65,7 @@ public class QueryClientUtil {
                 patient.getPatientName() + " (" + patient.getLevel() + ")," +
                 doctor.getName() + " (" + doctor.getLevel() + ")"
         );
-        builder.append("\n");
+//        builder.append("\n");
         return builder.toString();
     }
 
