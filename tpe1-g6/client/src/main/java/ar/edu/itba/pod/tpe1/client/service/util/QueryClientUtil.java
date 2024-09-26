@@ -52,7 +52,6 @@ public class QueryClientUtil {
     public static String mapQueryWaitingRoomInfo(Patient patient) {
         StringBuilder builder = new StringBuilder();
         builder.append(patient.getPatientName() + "," + patient.getLevel());
-        builder.append("\n");
         return builder.toString();
     }
 

@@ -25,6 +25,7 @@ public class QueryServant extends QueryServiceGrpc.QueryServiceImplBase {
     @Override
     public void queryRooms(Empty request, StreamObserver<QueryRoomsResponse> responseObserver) {
         //TODO: implement
+        //Room,Status,Patient,Doctor
     }
 
     @Override
