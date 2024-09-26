@@ -17,6 +17,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.locks.ReadWriteLock;
 
+import static ar.edu.itba.pod.tpe1.emergencyCare.EmergencyCareServiceModel.stringName;
+
 public class QueryServant extends QueryServiceGrpc.QueryServiceImplBase {
     private static final Logger logger = LoggerFactory.getLogger(QueryServant.class);
 
@@ -47,13 +49,13 @@ public class QueryServant extends QueryServiceGrpc.QueryServiceImplBase {
         List<QueryRoomInfo> listOfRooms = new ArrayList<>();
 
         for (int i = 0; i < rooms.size(); i++) {
-            RoomStatus status = rooms.get(i);
+            String status = rooms.get(i).getValueDescriptor().getOptions().getExtension(stringName);
             QueryRoomInfo.Builder roomInfoBuilder = QueryRoomInfo.newBuilder()
                     .setRoomId(i + 1)
                     .setStatus(status);
 
 
-            if (status == RoomStatus.ROOM_STATUS_OCCUPIED) {
+            if ("Occupied".equals(status)) {
                 CaredInfo care = careRespository.getCare(i + 1);
                 roomInfoBuilder.setDoctor(care.getDoctor()).setPatient(care.getPatient());
             }

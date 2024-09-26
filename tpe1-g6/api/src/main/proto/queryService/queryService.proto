@@ -42,7 +42,7 @@ message QueryRoomsResponse {
 }
 message QueryRoomInfo {
   int32 roomId = 1;
-  emergencyCareService.RoomStatus status = 2;
+  string status = 2;
   administrationService.Doctor doctor = 3;
   waitingRoomService.Patient patient = 4;
 }
