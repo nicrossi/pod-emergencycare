@@ -1,6 +1,7 @@
 package ar.edu.itba.pod.tpe1.server.repository;
 
 import ar.edu.itba.pod.tpe1.emergencyCare.RoomStatus;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
@@ -10,6 +11,7 @@ import java.util.List;
 public class RoomsRepository {
     private final Object lock = "lock";
 
+    @Getter
     private final List<RoomStatus> rooms = new ArrayList<>();
 
     public int addRoom() {

@@ -13,9 +13,13 @@ import io.grpc.stub.StreamObserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.locks.ReadWriteLock;
+
+import static ar.edu.itba.pod.tpe1.emergencyCare.EmergencyCareServiceModel.stringName;
 
 public class EmergencyCareServant extends EmergencyCareServiceGrpc.EmergencyCareServiceImplBase {
     private static final Logger logger = LoggerFactory.getLogger(EmergencyCareServant.class);
@@ -44,40 +48,44 @@ public class EmergencyCareServant extends EmergencyCareServiceGrpc.EmergencyCare
         lock.writeLock().lock();
         try {
             int roomId = request.getRoom();
-            RoomStatus currentRoomStatus = validateAndGetRoomAvailability(responseObserver, roomId);
             CaredInfo caredInfo = null;
             CarePatientResponse.Builder careResp = CarePatientResponse.newBuilder().setRoom(roomId);
+            RoomStatus currentRoomStatus = validateAndGetRoomAvailability(responseObserver, roomId);
 
-            Iterator<Patient> iter = patientsRepository.waitingRoomIterator();
-            while (iter.hasNext()) {
-                Patient patient = iter.next();
-                Optional<Doctor> optionalDoctor = doctorsRepository.findNextAvailableDoctorClosestFit(patient.getLevel());
-                // if doctor si not found, then check another patient
-                if (optionalDoctor.isPresent()) {
-                    Doctor doctor = doctorsRepository.setDoctorAvailabilityStatus(optionalDoctor.get(), AvailabilityStatus.AVAILABILITY_STATUS_ATTENDING);
-                    iter.remove();
-                    caredInfo = careRepository.startCare(roomId, patient, doctor);
-                    CarePatientInfo effect = CarePatientInfo.newBuilder()
-                            .setDoctorName(doctor.getName())
-                            .setDoctorLevel(doctor.getLevel())
-                            .setPatientName(patient.getPatientName())
-                            .setPatientLevel(patient.getLevel())
-                            .build();
+            if (currentRoomStatus == RoomStatus.ROOM_STATUS_FREE) {
+                Iterator<Patient>  iter = patientsRepository.waitingRoomIterator();
+                while(iter.hasNext()) {
+                    Patient patient = iter.next();
+                    Optional<Doctor> optionalDoctor = doctorsRepository.findNextAvailableDoctorClosestFit(patient.getLevel());
+                    // if doctor si not found, then check another patient
+                    if (optionalDoctor.isPresent()) {
+                        Doctor doctor = doctorsRepository.setDoctorAvailabilityStatus(optionalDoctor.get(), AvailabilityStatus.AVAILABILITY_STATUS_ATTENDING);
+                        iter.remove();
+                        caredInfo = careRepository.startCare(roomId, patient, doctor);
+                        CarePatientInfo effect = CarePatientInfo.newBuilder()
+                                .setDoctorName(doctor.getName())
+                                .setDoctorLevel(doctor.getLevel())
+                                .setPatientName(patient.getPatientName())
+                                .setPatientLevel(patient.getLevel())
+                                .build();
 
-                    // if care couldn't be started, only set status
-                    if (caredInfo != null) {
-                        roomsRepository.setRoomStatus(roomId, RoomStatus.ROOM_STATUS_OCCUPIED);
-                        careResp.setEffect(effect);
-                    } else {
-                        careResp.setStatus(currentRoomStatus);
+                        // if care couldn't be started, only set status
+                        if (caredInfo != null) {
+                            roomsRepository.setRoomStatus(roomId, RoomStatus.ROOM_STATUS_OCCUPIED);
+                            careResp.setEffect(effect);
+                        } else {
+                            careResp.setStatus(currentRoomStatus);
+                        }
+
+                        break; // exit the iteration
                     }
-
-                    break; // exit the iteration
                 }
             }
+
             if (caredInfo == null) {
                 logger.info("No patient could be attended");
-                logger.info("Room #{} remains {}", roomId, currentRoomStatus);
+                String statusName = currentRoomStatus.getValueDescriptor().getOptions().getExtension(stringName);
+                logger.info("Room #{} remains {}", roomId, statusName);
                 careResp.setStatus(currentRoomStatus);
             }
             responseObserver.onNext(careResp.build());
@@ -91,6 +99,43 @@ public class EmergencyCareServant extends EmergencyCareServiceGrpc.EmergencyCare
 
     public void careAllPatients(Empty empty, StreamObserver<CareAllPatientsResponse> responseObserver) {
         logger.info("Attending all patients ...");
+        List<RoomStatus> rooms = roomsRepository.getRooms();
+        List<CarePatientResponse> carePatientResponses = new ArrayList<>();
+        CareAllPatientsResponse.Builder response = CareAllPatientsResponse.newBuilder();
+
+        try {
+            for (int i = 0; i < rooms.size(); i++) {
+                int roomId = i + 1;
+                CarePatientRequest request = CarePatientRequest.newBuilder()
+                        .setRoom(roomId)
+                        .build();
+                carePatient(request, new StreamObserver<>() {
+                    @Override
+                    public void onNext(CarePatientResponse value) {
+                        carePatientResponses.add(value);
+                    }
+
+                    @Override
+                    public void onError(Throwable t) {
+                        if (t instanceof StatusRuntimeException statusEx) {
+                            logger.error(statusEx.getStatus().getDescription());
+                        } else {
+                            logger.error("An unexpected error occurred: {}", t.getMessage(), t);
+                        }
+                    }
+
+                    @Override
+                    public void onCompleted() {}
+                });
+            }
+
+            response.addAllStates(carePatientResponses);
+            responseObserver.onNext(response.build());
+            responseObserver.onCompleted();
+        } catch (Exception e) {
+            logger.error("Error while caring for patients: {}", e.getMessage(), e);
+            responseObserver.onError(Status.INTERNAL.withDescription("Error while caring for patients").asRuntimeException());
+        }
     }
 
     public void dischargePatient(DischargePatientRequest request, StreamObserver<DischargePatientResponse> responseObserver) {
@@ -121,14 +166,7 @@ public class EmergencyCareServant extends EmergencyCareServiceGrpc.EmergencyCare
 
     private RoomStatus validateAndGetRoomAvailability(StreamObserver<CarePatientResponse> responseObserver, int roomId) {
         try {
-            RoomStatus currentRoomStatus = roomsRepository.getRoomStatus(roomId);
-            if (currentRoomStatus != RoomStatus.ROOM_STATUS_FREE) {
-                StatusRuntimeException error = Status.FAILED_PRECONDITION
-                        .withDescription("Room #" + roomId + " remains occupied")
-                        .asRuntimeException();
-                responseObserver.onError(error);
-            }
-            return currentRoomStatus;
+            return roomsRepository.getRoomStatus(roomId);
         } catch (Exception e) {
             logger.error("Couldn't start patient caring: {}", e.getMessage(), e);
             StatusRuntimeException sre = Status.FAILED_PRECONDITION
