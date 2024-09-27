@@ -29,9 +29,7 @@ public class PatientsRepositoryTest {
         Patient invalidPatient = Patient.newBuilder()
                 .setPatientName("JohnDoe")
                 .setLevel(6).build();
-        assertThrows(IllegalArgumentException.class, () -> {
-            repository.addPatient(invalidPatient);
-        });
+        assertThrows(IllegalArgumentException.class, () -> repository.addPatient(invalidPatient));
     }
 
     @Test
