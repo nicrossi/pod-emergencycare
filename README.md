@@ -51,7 +51,7 @@ Los doctores tiene una tabla, la key unica seria el Name.
 Nota: Idle es Available
 
 | Name    | Level | Availability | Registered |
-| ------- | ----- | ------------ | ---------- |
+|---------|-------|--------------|------------|
 | John    | 3     | UNAVAILABLE  | true       |
 | Paul    | 5     | AVAILABLE    | false      |
 | Melanie | 4     | ATTENDING    | false      |
@@ -61,7 +61,7 @@ Nota: Idle es Available
 Las habitaciones son simplemente un id incremental, pero puede estar bueno tener el campo State para saber si algun paciente esta ocupando la habitacion sin tener que revisar la tabla de Caring, aunque es posible que sea mas simple unir esta tabla con esa.
 
 | Room | State    |
-| ---- | -------- |
+|------|----------|
 | 1    | OCCUPIED |
 | 2    | FREE     |
 | 3    | OCCUPIED |
@@ -72,7 +72,7 @@ Las habitaciones son simplemente un id incremental, pero puede estar bueno tener
 Cuando se agrega un paciente nuevo, agregar su nombre al WaitingRoomRepo.
 
 | Name | Level |
-| ---- | ----- |
+|------|-------|
 | Bar  | 5     |
 | Foo  | 1     |
 | Baz  | 3     |
@@ -82,7 +82,7 @@ Cuando se agrega un paciente nuevo, agregar su nombre al WaitingRoomRepo.
 [inserte aqui ese algoritmo para elegir pacientes: leer desde esta tabla el Name, buscar en la de pacientes su level y luego en la de doctors lo que corresponda]
 
 | PatientName |
-| ----------- |
+|-------------|
 | Baz         |
 
 ### CaringRepo
@@ -92,6 +92,6 @@ Cuando un paciente es atendido por un doctor en una habitacion, se inserta una r
 Al finalizar la atencion al paciente, se saca la row de aca, se actualiza el estado del Room a `FREE`, el Doctor de regreso a `AVAILABLE` y se elimina al Paciente de su tabla.
 
 | PatientName | DoctorName | Room |
-| ----------- | ---------- | ---- |
+|-------------|------------|------|
 | Bar         | Paul       | 1    |
 | Foo         | Melanie    | 3    |
