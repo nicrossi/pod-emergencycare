@@ -26,9 +26,7 @@ public class DoctorsRepositoryTest {
         Doctor invalidDoctor = Doctor.newBuilder()
                 .setName("JohnDoe")
                 .setLevel(6).build();
-        assertThrows(IllegalArgumentException.class, () -> {
-            repository.addDoctor(invalidDoctor);
-        });
+        assertThrows(IllegalArgumentException.class, () -> repository.addDoctor(invalidDoctor));
     }
 
     @Test
@@ -37,9 +35,7 @@ public class DoctorsRepositoryTest {
                 .setName("JohnDoe")
                 .setLevel(3).build();
         repository.addDoctor(doctor);
-        assertThrows(IllegalArgumentException.class, () -> {
-            repository.addDoctor(doctor);
-        });
+        assertThrows(IllegalArgumentException.class, () -> repository.addDoctor(doctor));
     }
 
     @Test
@@ -47,9 +43,7 @@ public class DoctorsRepositoryTest {
         Doctor doctor = Doctor.newBuilder()
                 .setName("JohnDoe")
                 .setLevel(3).build();
-        assertThrows(IllegalArgumentException.class, () -> {
-            repository.modifyDoctor(doctor);
-        });
+        assertThrows(IllegalArgumentException.class, () -> repository.modifyDoctor(doctor));
     }
 
     @Test
