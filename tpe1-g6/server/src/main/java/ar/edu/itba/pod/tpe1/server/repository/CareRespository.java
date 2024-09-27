@@ -3,6 +3,7 @@ package ar.edu.itba.pod.tpe1.server.repository;
 import ar.edu.itba.pod.tpe1.administration.Doctor;
 import ar.edu.itba.pod.tpe1.query.CaredInfo;
 import ar.edu.itba.pod.tpe1.waitingRoom.Patient;
+import com.sun.jdi.request.DuplicateRequestException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,12 +14,18 @@ public class CareRespository {
 
     public CaredInfo startCare(int roomId, Patient patient, Doctor doctor) {
         synchronized (lock) {
-
             CaredInfo newCare = CaredInfo.newBuilder()
                     .setRoomId(roomId)
                     .setDoctor(doctor)
                     .setPatient(patient).build();
-            //TODO: check that this care is unique in the list!
+
+            //check we aren't duplicating cares!
+            currentlyCared.stream()
+                    .filter(c ->
+                            c.equals(newCare)
+                    ).findFirst().ifPresent(c -> {
+                        throw new DuplicateRequestException("This care already exists");
+                    });
 
             currentlyCared.add(newCare);
             return newCare;
