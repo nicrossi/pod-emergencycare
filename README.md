@@ -1,6 +1,12 @@
-# pod-emergencycare
+# Trabajo Práctico Especial 1 - Sala de Emergencias
 
-Trabajo Práctico Especial 1 - Sala de Emergencias
+Programacion de Objetos Distribuidos
+
+## Grupo 6:
+
+- Rossi, Nicolas - 53225
+- Ricarte, Matias Agustin - 58417
+- Panighini, Franco - 61258
 
 ## Instrucciones
 
@@ -21,63 +27,43 @@ Trabajo Práctico Especial 1 - Sala de Emergencias
 1. `cd` a `tpe1-g6-client-2024.1Q`.
 2. Dar permisos de ejecucion a los scripts `./administrationClient.sh`, `./waitingRoomClient.sh`, `./emergencyCareClient.sh`, `./doctorPagerClient.sh` y `./queryClient.sh` `./healthCheck.sh`
 
+### Ejemplos de uso de los diversos comandos y sus parametros:
+
+#### Servicio de Administración
+
+- Para agregar un nuevo consultorio: `./administrationClient.sh -DserverAddress=localhost:50051 -Daction=addRoom`
+- Para agregar un nuevo médico: `administrationClient.sh -DserverAddress=localhost:50051 -Daction=addDoctor -Ddoctor=John -Dlevel=3`
+- Para modificar la disponibilidad de un médico: `administrationClient.sh -DserverAddress=localhost:50051 -Daction=setDoctor -Ddoctor=John -Davailability=available`
+- Para consultar la disponibilidad de un médico: `administrationClient.sh -DserverAddress=localhost:50051 -Daction=checkDoctor -Ddoctor=John`
+
+#### Servicio de Sala de Espera
+
+- Para registrar un nuevo paciente: `./waitingRoomClient.sh -DserverAddress=localhost:50051 -Daction=addPatient -Dpatient=Foo -Dlevel=3`
+- Para actualizar el nivel de emergencia de un paciente: `./waitingRoomClient.sh -DserverAddress=localhost:50051 -Daction=updateLevel -Dpatient=Foo -Dlevel=3`
+- Para consultar la espera aproximada de un paciente: `./waitingRoomClient.sh -DserverAddress=localhost:50051 -Daction=checkPatient -Dpatient=Foo`
+
+#### Servicio de Atención de Emergencias
+
+- Para iniciar la atención de una emergencia en un consultorio: `./emergencyCareClient.sh -DserverAddress=localhost:50051 -Daction=carePatient -Droom=1`
+- Para iniciar la atención de emergencias en los consultorios libres: `./emergencyCareClient.sh -DserverAddress=localhost:50051 -Daction=careAllPatients`
+- Para finalizar la atención de una emergencia en un consultorio: `./emergencyCareClient.sh -DserverAddress=localhost:50051 -Daction=dischargePatient -Droom=1 -Ddoctor=John -Dpatient=Foo`
+
+#### Servicio de Notificación al Personal
+
+- Para registrar a un médico para ser notificado: `./doctorPagerClient.sh -DserverAddress=localhost:50051 -Daction=register -Ddoctor=John`
+- Para anular registrar de un médico: `./doctorPagerClient.sh -DserverAddress=localhost:50051 -Daction=unregister -Ddoctor=John`
+
+#### Servicio de Consulta
+
+- Para generar un reporte sobre el estado actual de los consultorios: `./queryClient.sh -DserverAddress=localhost:50051 -Daction=queryRooms -DoutPath=../queryRooms.csv`
+- Para generar un reporte sobre los pacientes esperando a ser atendidos: `./queryClient.sh -DserverAddress=localhost:50051 -Daction=queryWaitingRoom -DoutPath=../queryWaiting.csv`
+- Para generar un reporte sobre las atenciones finalizadas: `./queryClient.sh -DserverAddress=localhost:50051 -Daction=queryCares -DoutPath=../queryCares.csv`
 
 ### HealthCheck
+
 A modo de test, el servicio `HealthCheck` responde un status "OK". Para asegurarse que el servidor esta funcionando correctamente.
 
 #### Test steps:
+
 1. Iniciar el servidor
 2. `./healthCheck.sh -DserverAddress=localhost:50051 -Daction=status`
-
-## Propuesta para los Repositories
-
-### DoctorsRepo
-
-Los doctores tiene una tabla, la key unica seria el Name.
-Nota: Idle es Available
-
-| Name    | Level | Availability | Registered |
-|---------|-------|--------------|------------|
-| John    | 3     | UNAVAILABLE  | true       |
-| Paul    | 5     | AVAILABLE    | false      |
-| Melanie | 4     | ATTENDING    | false      |
-
-### RoomsRepo
-
-Las habitaciones son simplemente un id incremental, pero puede estar bueno tener el campo State para saber si algun paciente esta ocupando la habitacion sin tener que revisar la tabla de Caring, aunque es posible que sea mas simple unir esta tabla con esa.
-
-| Room | State    |
-|------|----------|
-| 1    | OCCUPIED |
-| 2    | FREE     |
-| 3    | OCCUPIED |
-| 4    | FREE     |
-
-### PatientsRepo
-
-Cuando se agrega un paciente nuevo, agregar su nombre al WaitingRoomRepo.
-
-| Name | Level |
-|------|-------|
-| Bar  | 5     |
-| Foo  | 1     |
-| Baz  | 3     |
-
-### WaitingRoomRepo
-
-[inserte aqui ese algoritmo para elegir pacientes: leer desde esta tabla el Name, buscar en la de pacientes su level y luego en la de doctors lo que corresponda]
-
-| PatientName |
-|-------------|
-| Baz         |
-
-### CaringRepo
-
-Tomamos los unique keys de las tablas de doctors, patients y rooms.
-Cuando un paciente es atendido por un doctor en una habitacion, se inserta una row aca, se cambia el campo State para el Room a `OCCUPIED` y el campo Availability en la del Doctor a `ATTENDING` (attending y unavailable es diferente...?).
-Al finalizar la atencion al paciente, se saca la row de aca, se actualiza el estado del Room a `FREE`, el Doctor de regreso a `AVAILABLE` y se elimina al Paciente de su tabla.
-
-| PatientName | DoctorName | Room |
-|-------------|------------|------|
-| Bar         | Paul       | 1    |
-| Foo         | Melanie    | 3    |
