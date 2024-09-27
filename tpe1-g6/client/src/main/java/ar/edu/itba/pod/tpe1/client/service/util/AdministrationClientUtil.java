@@ -23,29 +23,21 @@ public class AdministrationClientUtil {
     }
 
     public static String getAvailability(AvailabilityStatus availabilityStatus) {
-        switch (availabilityStatus) {
-            case AVAILABILITY_STATUS_AVAILABLE:
-                return "Available";
-            case AVAILABILITY_STATUS_UNAVAILABLE:
-                return "Unavailable";
-            case AVAILABILITY_STATUS_ATTENDING:
-                return "Attending";
-            default:
-                return "Unspecified";
-        }
+        return switch (availabilityStatus) {
+            case AVAILABILITY_STATUS_AVAILABLE -> "Available";
+            case AVAILABILITY_STATUS_UNAVAILABLE -> "Unavailable";
+            case AVAILABILITY_STATUS_ATTENDING -> "Attending";
+            default -> "Unspecified";
+        };
     }
 
     private static AvailabilityStatus getAvailabilityStatus(String in) {
-        switch (in.toLowerCase()) {
-            case "available":
-                return AvailabilityStatus.AVAILABILITY_STATUS_AVAILABLE;
-            case "unavailable":
-                return AvailabilityStatus.AVAILABILITY_STATUS_UNAVAILABLE;
-            case "attending":
-                return AvailabilityStatus.AVAILABILITY_STATUS_ATTENDING;
-            default:
-                return AvailabilityStatus.AVAILABILITY_STATUS_UNSPECIFIED;
-        }
+        return switch (in.toLowerCase()) {
+            case "available" -> AvailabilityStatus.AVAILABILITY_STATUS_AVAILABLE;
+            case "unavailable" -> AvailabilityStatus.AVAILABILITY_STATUS_UNAVAILABLE;
+            case "attending" -> AvailabilityStatus.AVAILABILITY_STATUS_ATTENDING;
+            default -> AvailabilityStatus.AVAILABILITY_STATUS_UNSPECIFIED;
+        };
     }
 
     public static SetDoctorRequest getSetDoctorRequest() {
