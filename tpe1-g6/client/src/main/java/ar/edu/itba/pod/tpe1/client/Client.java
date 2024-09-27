@@ -19,7 +19,7 @@ public class Client {
             ServiceStrategyProvider serviceStrategyProvider = new ServiceStrategyProvider();
             ServiceStrategy serviceStrategy = serviceStrategyProvider.getServiceStrategy(ServiceType.selectService(service), serverAddress);
             serviceStrategy.execute(action);
-        } catch (Exception e){
+        } catch (Exception e) {
             logger.error("Error executing service: {}", e.getMessage(), e);
         }
     }

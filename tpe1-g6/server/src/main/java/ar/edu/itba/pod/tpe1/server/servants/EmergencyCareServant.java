@@ -56,8 +56,8 @@ public class EmergencyCareServant extends EmergencyCareServiceGrpc.EmergencyCare
             RoomStatus currentRoomStatus = validateAndGetRoomAvailability(responseObserver, roomId);
 
             if (currentRoomStatus == RoomStatus.ROOM_STATUS_FREE) {
-                Iterator<Patient>  iter = patientsRepository.waitingRoomIterator();
-                while(iter.hasNext()) {
+                Iterator<Patient> iter = patientsRepository.waitingRoomIterator();
+                while (iter.hasNext()) {
                     Patient patient = iter.next();
                     Optional<Doctor> optionalDoctor = doctorsRepository.findNextAvailableDoctorClosestFit(patient.getLevel());
                     // if doctor si not found, then check another patient
@@ -133,7 +133,8 @@ public class EmergencyCareServant extends EmergencyCareServiceGrpc.EmergencyCare
                     }
 
                     @Override
-                    public void onCompleted() {}
+                    public void onCompleted() {
+                    }
                 });
             }
 
@@ -143,7 +144,7 @@ public class EmergencyCareServant extends EmergencyCareServiceGrpc.EmergencyCare
         } catch (Exception e) {
             logger.error("Error while caring for patients: {}", e.getMessage(), e);
             responseObserver.onError(Status.INTERNAL.withDescription("Error while caring for patients").asRuntimeException());
-        }finally{
+        } finally {
             lock.writeLock().unlock();
         }
     }
@@ -152,14 +153,14 @@ public class EmergencyCareServant extends EmergencyCareServiceGrpc.EmergencyCare
         logger.info("Discharging patient ...");
         CaredInfo caredInfo;
         lock.writeLock().lock();
-        try{
+        try {
             caredInfo = careRepository.endCare(request.getRoom(), request.getPatientName(), request.getDoctorName());
             historyRepository.addHistory(caredInfo);
             dischargeRoomAndDoctor(responseObserver, request.getRoom(), caredInfo.getDoctor());
             // notify doctor
             String messageEvent = "Patient %s (%s) has been discharged from Doctor %s (%s) and the Room #%d is now Free"
                     .formatted(caredInfo.getPatient().getPatientName(), caredInfo.getPatient().getLevel(),
-                               caredInfo.getDoctor().getName(), caredInfo.getDoctor().getLevel(), caredInfo.getRoomId());
+                            caredInfo.getDoctor().getName(), caredInfo.getDoctor().getLevel(), caredInfo.getRoomId());
             doctorPagerServant.notifyDoctor(caredInfo.getDoctor().getName(), messageEvent);
         } finally {
             lock.writeLock().unlock();

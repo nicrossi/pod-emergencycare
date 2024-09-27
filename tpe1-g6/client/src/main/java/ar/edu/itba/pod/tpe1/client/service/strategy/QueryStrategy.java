@@ -138,9 +138,10 @@ public class QueryStrategy extends AbstractServiceStrategy {
             }
         };
 
-        return switch(action) {
+        return switch (action) {
             case "queryRooms" -> () -> stub.queryRooms(Empty.getDefaultInstance(), queryRoomsObserver);
-            case "queryWaitingRoom" -> () -> stub.queryWaitingRoom(Empty.getDefaultInstance(), queryWaitingRoomObserver);
+            case "queryWaitingRoom" ->
+                    () -> stub.queryWaitingRoom(Empty.getDefaultInstance(), queryWaitingRoomObserver);
             case "queryCares" -> () -> stub.queryCares(QueryClientUtil.getQueryRequest(), queryCaresObserver);
             default -> null;
         };

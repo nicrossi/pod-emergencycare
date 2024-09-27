@@ -7,6 +7,7 @@ import ar.edu.itba.pod.tpe1.query.QueryRoomInfo;
 import ar.edu.itba.pod.tpe1.waitingRoom.Patient;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+
 import java.util.Optional;
 
 

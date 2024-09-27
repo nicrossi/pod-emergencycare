@@ -85,8 +85,10 @@ public class EmergencyCareStrategy extends AbstractServiceStrategy {
         };
 
         return switch (action) {
-            case "carePatient" -> () -> stub.carePatient(EmergencyCareUtil.getCarePatientRequest(), carePatientObserver);
-            case "dischargePatient" -> () -> stub.dischargePatient(EmergencyCareUtil.getDischargePatientRequest(), dischargePatientObserver);
+            case "carePatient" ->
+                    () -> stub.carePatient(EmergencyCareUtil.getCarePatientRequest(), carePatientObserver);
+            case "dischargePatient" ->
+                    () -> stub.dischargePatient(EmergencyCareUtil.getDischargePatientRequest(), dischargePatientObserver);
             case "careAllPatients" -> () -> stub.careAllPatients(Empty.newBuilder().build(), careAllPatientsObserver);
             default -> null;
         };

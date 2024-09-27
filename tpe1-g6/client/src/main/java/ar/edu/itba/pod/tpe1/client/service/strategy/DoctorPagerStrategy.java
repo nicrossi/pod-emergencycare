@@ -23,7 +23,7 @@ public class DoctorPagerStrategy extends AbstractServiceStrategy {
 
     @Override
     protected Runnable getActionTask(String action, CountDownLatch latch) {
-        return switch(action) {
+        return switch (action) {
             case "register" -> () -> {
                 try {
                     final Iterator<DoctorPagerResponse> responseIterator = stub.register(DoctorPagerClientUtil.getDoctorPagerRequest());

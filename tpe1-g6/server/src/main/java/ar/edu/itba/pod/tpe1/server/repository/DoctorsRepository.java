@@ -19,12 +19,12 @@ public class DoctorsRepository {
 
     public Doctor addDoctor(Doctor doctor) {
         int MIN_LEVEL = 1;
-        if(doctor.getLevel() > MAX_LEVEL || doctor.getLevel() < MIN_LEVEL) {
+        if (doctor.getLevel() > MAX_LEVEL || doctor.getLevel() < MIN_LEVEL) {
             throw new IllegalArgumentException("Doctor level out of range");
         }
 
         synchronized (lock) {
-            if(doctors.containsKey(doctor.getName())) {
+            if (doctors.containsKey(doctor.getName())) {
                 throw new IllegalArgumentException("Doctor already exists");
             }
             doctors.put(doctor.getName(), doctor);
@@ -39,7 +39,7 @@ public class DoctorsRepository {
             String name = modifiedDoctor.getName();
             Doctor prevDoctor = doctors.get(name);
 
-            if(prevDoctor == null) {
+            if (prevDoctor == null) {
                 throw new IllegalArgumentException("Doctor %s not found".formatted(name));
             }
 
@@ -56,7 +56,7 @@ public class DoctorsRepository {
 
     public Optional<Doctor> getDoctor(String doctorName) {
         synchronized (lock) {
-            return  Optional.ofNullable(doctors.get(doctorName));
+            return Optional.ofNullable(doctors.get(doctorName));
         }
     }
 

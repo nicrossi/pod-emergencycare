@@ -27,8 +27,8 @@ public class PatientsRepositoryTest {
     @Test
     public void shouldThrowExceptionWhenAddingPatientWithInvalidLevel() {
         Patient invalidPatient = Patient.newBuilder()
-                                        .setPatientName("JohnDoe")
-                                        .setLevel(6).build();
+                .setPatientName("JohnDoe")
+                .setLevel(6).build();
         assertThrows(IllegalArgumentException.class, () -> {
             repository.addPatient(invalidPatient);
         });
@@ -37,13 +37,13 @@ public class PatientsRepositoryTest {
     @Test
     public void shouldAddPatient() {
         Patient patient = Patient.newBuilder()
-                                 .setPatientName("JohnDoe")
-                                 .setLevel(3).build();
+                .setPatientName("JohnDoe")
+                .setLevel(3).build();
         assertEquals(0, repository.getPatientsWaitingCount());
         repository.addPatient(patient);
         assertEquals(1, repository.getPatientsWaitingCount());
         assertEquals(patient, repository.getWaitingRoomNextPatient()
-                                        .orElseThrow(() -> new IllegalStateException("Waiting room is empty")));
+                .orElseThrow(() -> new IllegalStateException("Waiting room is empty")));
     }
 
 
@@ -88,13 +88,13 @@ public class PatientsRepositoryTest {
         repository.addPatient(patient2);
         // Patient 2 is next in the queue
         assertEquals(patient2, repository.peekWaitingRoomNextPatient()
-                                         .orElseThrow(() -> new IllegalStateException("Waiting room is empty")));
+                .orElseThrow(() -> new IllegalStateException("Waiting room is empty")));
         // Update patient 2 level
         patient1 = patient1.toBuilder().setLevel(5).build();
         repository.updateLevel(patient1);
         // Patient 1 is now next in the queue, as it has the same level as patient 2 but was added first
         assertEquals(patient1, repository.peekWaitingRoomNextPatient()
-                                         .orElseThrow(() -> new IllegalStateException("Waiting room is empty")));
+                .orElseThrow(() -> new IllegalStateException("Waiting room is empty")));
 
     }
 

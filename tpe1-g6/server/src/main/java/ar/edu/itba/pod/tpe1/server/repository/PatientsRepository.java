@@ -76,13 +76,13 @@ public class PatientsRepository {
             }
 
             return Optional.ofNullable(patients.remove(patient.getName()))
-                           .map(ComparablePatient::getPatient);
+                    .map(ComparablePatient::getPatient);
         }
     }
 
     public Optional<Patient> peekWaitingRoomNextPatient() {
         return Optional.ofNullable(waitingRoom.peek())
-                       .map(ComparablePatient::getPatient);
+                .map(ComparablePatient::getPatient);
     }
 
     public Iterator<Patient> waitingRoomIterator() {

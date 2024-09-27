@@ -36,9 +36,9 @@ public class AdministrationServant extends AdministrationServiceGrpc.Administrat
         int roomId;
 
         lock.writeLock().lock();
-        try{
+        try {
             roomId = roomsRepository.addRoom();
-        }finally{
+        } finally {
             lock.writeLock().unlock();
         }
 
@@ -59,9 +59,9 @@ public class AdministrationServant extends AdministrationServiceGrpc.Administrat
         Doctor response;
 
         lock.writeLock().lock();
-        try{
+        try {
             response = doctorsRepository.addDoctor(reqDoctor);
-        }finally{
+        } finally {
             lock.writeLock().unlock();
         }
 
@@ -71,15 +71,15 @@ public class AdministrationServant extends AdministrationServiceGrpc.Administrat
 
     public void setDoctor(SetDoctorRequest request, StreamObserver<Doctor> responseObserver) {
         logger.info("Setting doctor ...");
-        if(request.getAvailability() == AvailabilityStatus.AVAILABILITY_STATUS_ATTENDING) {
+        if (request.getAvailability() == AvailabilityStatus.AVAILABILITY_STATUS_ATTENDING) {
             throw new IllegalArgumentException("Only 'available' and 'unavailable' are allowed");
         }
 
         Optional<Doctor> prevDoctor;
         lock.readLock().lock();
-        try{
-            prevDoctor= doctorsRepository.getDoctor(request.getDoctorName());
-        }finally{
+        try {
+            prevDoctor = doctorsRepository.getDoctor(request.getDoctorName());
+        } finally {
             lock.readLock().unlock();
         }
 
@@ -94,7 +94,7 @@ public class AdministrationServant extends AdministrationServiceGrpc.Administrat
             try {
                 response = doctorsRepository.modifyDoctor(nextDoctor);
                 // notify doctor
-                String eventMessage  = "Doctor %s (%s) is %s".formatted(
+                String eventMessage = "Doctor %s (%s) is %s".formatted(
                         response.getName(),
                         response.getLevel(),
                         response.getAvailability().getValueDescriptor().getOptions().getExtension(stringName));
@@ -116,9 +116,9 @@ public class AdministrationServant extends AdministrationServiceGrpc.Administrat
         Optional<Doctor> reqDoctor;
 
         lock.readLock().lock();
-        try{
-            reqDoctor= doctorsRepository.getDoctor(request.getValue());
-        }finally {
+        try {
+            reqDoctor = doctorsRepository.getDoctor(request.getValue());
+        } finally {
             lock.readLock().unlock();
         }
 

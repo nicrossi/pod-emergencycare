@@ -26,9 +26,9 @@ public class WaitingRoomServant extends WaitingRoomServiceGrpc.WaitingRoomServic
         logger.info("Adding patient ...");
         Patient response;
         lock.writeLock().lock();
-        try{
+        try {
             response = patientsRepository.addPatient(request);
-        }finally{
+        } finally {
             lock.writeLock().unlock();
         }
 
@@ -56,14 +56,14 @@ public class WaitingRoomServant extends WaitingRoomServiceGrpc.WaitingRoomServic
         logger.info("Checking patient ...");
         PatientState response;
         lock.readLock().lock();
-        try{
+        try {
             response = patientsRepository.checkPatient(request.getPatientName());
-        }finally {
+        } finally {
             lock.readLock().unlock();
         }
 
         logger.info("Patient {} ({}) is in the waiting room with {} patients ahead",
-                    response.getPatientName(), response.getLevel(), response.getQueuePlace());
+                response.getPatientName(), response.getLevel(), response.getQueuePlace());
         responseObserver.onNext(response);
         responseObserver.onCompleted();
     }

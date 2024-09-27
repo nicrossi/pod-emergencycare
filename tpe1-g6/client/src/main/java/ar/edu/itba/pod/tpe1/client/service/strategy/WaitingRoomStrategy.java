@@ -59,9 +59,12 @@ public class WaitingRoomStrategy extends AbstractServiceStrategy {
         };
 
         return switch (action) {
-            case "addPatient" -> () -> stub.addPatient(WaitingRoomClientUtil.getAddPatientRequest(), addPatientObserver);
-            case "updateLevel" -> () -> stub.updateLevel(WaitingRoomClientUtil.getUpdateLevelRequest(), addPatientObserver);
-            case "checkPatient" -> () -> stub.checkPatient(WaitingRoomClientUtil.getCheckPatientRequest(), checkPatientObserver);
+            case "addPatient" ->
+                    () -> stub.addPatient(WaitingRoomClientUtil.getAddPatientRequest(), addPatientObserver);
+            case "updateLevel" ->
+                    () -> stub.updateLevel(WaitingRoomClientUtil.getUpdateLevelRequest(), addPatientObserver);
+            case "checkPatient" ->
+                    () -> stub.checkPatient(WaitingRoomClientUtil.getCheckPatientRequest(), checkPatientObserver);
             default -> null;
         };
     }
