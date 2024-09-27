@@ -51,7 +51,6 @@ public class HealthCheckServiceStrategy implements ServiceStrategy {
             logger.error("HealthCheck interrupted: {}", e.getMessage());
         } finally {
             channel.shutdown();
-            // TODO maybe add some additional validation to check if the channel is terminated ?
         }
     }
 }

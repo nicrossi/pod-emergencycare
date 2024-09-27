@@ -26,6 +26,7 @@ public class QueryStrategy extends AbstractServiceStrategy {
     @Override
     protected Runnable getActionTask(String action, CountDownLatch latch) {
         String outPath = Validate.notBlank(System.getProperty("outPath"));
+
         StreamObserver<QueryRoomsResponse> queryRoomsObserver = new StreamObserver<>() {
             @Override
             public void onNext(QueryRoomsResponse value) {

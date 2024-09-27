@@ -27,7 +27,6 @@ public class AdministrationStrategy extends AbstractServiceStrategy {
             @Override
             public void onNext(Int32Value roomNumber) {
                 logger.info("Room #{} added successfully", roomNumber.getValue());
-                // TODO: implement
             }
 
             @Override
@@ -45,7 +44,6 @@ public class AdministrationStrategy extends AbstractServiceStrategy {
             @Override
             public void onNext(Doctor doctor) {
                 logger.info("Doctor {} ({}) added successfully", doctor.getName(), doctor.getLevel());
-                // TODO: implement
             }
 
             @Override
@@ -67,7 +65,6 @@ public class AdministrationStrategy extends AbstractServiceStrategy {
                         doctor.getLevel(),
                         AdministrationClientUtil.getAvailability(doctor.getAvailability())
                 );
-                // TODO: implement
             }
 
             @Override
@@ -89,7 +86,6 @@ public class AdministrationStrategy extends AbstractServiceStrategy {
                         doctor.getLevel(),
                         AdministrationClientUtil.getAvailability(doctor.getAvailability())
                 );
-                // TODO: implement
             }
 
             @Override

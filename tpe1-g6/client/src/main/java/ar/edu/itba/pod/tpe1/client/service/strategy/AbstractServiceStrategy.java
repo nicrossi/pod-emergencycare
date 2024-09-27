@@ -35,7 +35,6 @@ public abstract class AbstractServiceStrategy implements ServiceStrategy {
             logger.error("Execution interrupted: {}", e.getMessage());
         } finally {
             channel.shutdown();
-            // TODO maybe add some additional validation to check if the channel is terminated ?
         }
     }
 
