@@ -1,11 +1,9 @@
 syntax = "proto3";
 
-import "google/protobuf/wrappers.proto";
 import "google/protobuf/empty.proto";
 
 import "administrationService/administrationService.proto";
 import "waitingRoomService/waitingRoomService.proto";
-import "emergencyCareService/emergencyCareService.proto";
 
 package queryService;
 
@@ -26,12 +24,12 @@ message QueryRequest {
 message QueryCaresResponse {
   repeated CaredInfo history = 1;
 }
+
 message CaredInfo {
   int32 roomId = 1;
   administrationService.Doctor doctor = 3;
   waitingRoomService.Patient patient = 4;
 }
-
 
 message QueryWaitingRoomResponse {
   repeated waitingRoomService.Patient patientsInfo = 1;
@@ -40,15 +38,13 @@ message QueryWaitingRoomResponse {
 message QueryRoomsResponse {
   repeated QueryRoomInfo roomsInfo = 1;
 }
+
 message QueryRoomInfo {
   int32 roomId = 1;
   string status = 2;
   administrationService.Doctor doctor = 3;
   waitingRoomService.Patient patient = 4;
 }
-
-
-
 
 // there's a limit to how big a message can be, so we send the csv from the server in chunks
 // idea: https://stackoverflow.com/questions/49312554/grpc-java-file-download-example

@@ -1,6 +1,5 @@
 syntax = "proto3";
 
-import "google/protobuf/wrappers.proto";
 import "google/protobuf/empty.proto";
 import "google/protobuf/descriptor.proto";
 
@@ -21,7 +20,7 @@ message CarePatientRequest {
 }
 
 extend google.protobuf.EnumValueOptions {
-  string string_name = 51234;
+  string string_name = 51235;
 }
 
 enum RoomStatus {
