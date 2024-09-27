@@ -26,7 +26,7 @@ public class QueryClientUtil {
         return request.build();
     }
 
-    public static String[] QueryRoomsHeaders = {"Room", "Status", "Patient", "Doctor"};
+    public static final String[] QueryRoomsHeaders = {"Room", "Status", "Patient", "Doctor"};
 
     public static String mapQueryRoomInfo(QueryRoomInfo queryRoomInfo) {
         StringBuilder builder = new StringBuilder();
@@ -44,13 +44,13 @@ public class QueryClientUtil {
         return builder.toString();
     }
 
-    public static String[] QueryWaitingRoomHeaders = {"Patient", "Level"};
+    public static final String[] QueryWaitingRoomHeaders = {"Patient", "Level"};
 
     public static String mapQueryWaitingRoomInfo(Patient patient) {
         return patient.getPatientName() + "," + patient.getLevel();
     }
 
-    public static String[] QueryCaresHeaders = {"Room", "Patient", "Doctor"};
+    public static final String[] QueryCaresHeaders = {"Room", "Patient", "Doctor"};
 
     public static String mapCaredInfo(CaredInfo caredInfo) {
         StringBuilder builder = new StringBuilder();
