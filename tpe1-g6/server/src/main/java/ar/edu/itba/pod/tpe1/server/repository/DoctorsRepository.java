@@ -4,7 +4,6 @@ import ar.edu.itba.pod.tpe1.administration.AvailabilityStatus;
 import ar.edu.itba.pod.tpe1.administration.Doctor;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.SortedMap;
@@ -17,9 +16,9 @@ public class DoctorsRepository {
     private final SortedMap<Integer, Map<String, Doctor>> doctorMap = new TreeMap<>();
 
     private final int MAX_LEVEL = 5;
-    private final int MIN_LEVEL = 1;
 
     public Doctor addDoctor(Doctor doctor) {
+        int MIN_LEVEL = 1;
         if(doctor.getLevel() > MAX_LEVEL || doctor.getLevel() < MIN_LEVEL) {
             throw new IllegalArgumentException("Doctor level out of range");
         }

@@ -38,7 +38,7 @@ public class Server {
                 .intercept(new GlobalExceptionHandlerInterceptor())
                 .build();
         server.start();
-        logger.info("Server started, listening on " + port);
+        logger.info("Server started, listening on {}", port);
         server.awaitTermination();
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             logger.info("Shutting down gRPC server since JVM is shutting down");

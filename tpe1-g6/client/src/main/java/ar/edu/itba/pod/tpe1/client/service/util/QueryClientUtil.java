@@ -7,18 +7,14 @@ import ar.edu.itba.pod.tpe1.query.QueryRoomInfo;
 import ar.edu.itba.pod.tpe1.waitingRoom.Patient;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import org.apache.commons.lang3.Validate;
-
 import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class QueryClientUtil {
     @FunctionalInterface
     public interface Mapper<T> {
-        public String map(T t);
+        String map(T t);
     }
 
     public static QueryRequest getQueryRequest() {
@@ -33,15 +29,15 @@ public class QueryClientUtil {
 
     public static String mapQueryRoomInfo(QueryRoomInfo queryRoomInfo) {
         StringBuilder builder = new StringBuilder();
-        builder.append(queryRoomInfo.getRoomId() + "," + queryRoomInfo.getStatus() + ",");
+        builder.append(queryRoomInfo.getRoomId()).append(",").append(queryRoomInfo.getStatus()).append(",");
         if (queryRoomInfo.hasPatient()) {
             Patient patient = queryRoomInfo.getPatient();
-            builder.append(patient.getPatientName() + " (" + patient.getLevel() + ")");
+            builder.append(patient.getPatientName()).append(" (").append(patient.getLevel()).append(")");
         }
         builder.append(",");
         if (queryRoomInfo.hasDoctor()) {
             Doctor doctor = queryRoomInfo.getDoctor();
-            builder.append(doctor.getName() + " (" + doctor.getLevel() + ")");
+            builder.append(doctor.getName()).append(" (").append(doctor.getLevel()).append(")");
         }
 //        builder.append("\n");
         return builder.toString();
@@ -50,9 +46,7 @@ public class QueryClientUtil {
     public static String[] QueryWaitingRoomHeaders = {"Patient", "Level"};
 
     public static String mapQueryWaitingRoomInfo(Patient patient) {
-        StringBuilder builder = new StringBuilder();
-        builder.append(patient.getPatientName() + "," + patient.getLevel());
-        return builder.toString();
+        return patient.getPatientName() + "," + patient.getLevel();
     }
 
     public static String[] QueryCaresHeaders = {"Room", "Patient", "Doctor"};
@@ -61,10 +55,7 @@ public class QueryClientUtil {
         StringBuilder builder = new StringBuilder();
         Patient patient = caredInfo.getPatient();
         Doctor doctor = caredInfo.getDoctor();
-        builder.append(caredInfo.getRoomId() + "," +
-                patient.getPatientName() + " (" + patient.getLevel() + ")," +
-                doctor.getName() + " (" + doctor.getLevel() + ")"
-        );
+        builder.append(caredInfo.getRoomId()).append(",").append(patient.getPatientName()).append(" (").append(patient.getLevel()).append("),").append(doctor.getName()).append(" (").append(doctor.getLevel()).append(")");
 //        builder.append("\n");
         return builder.toString();
     }
@@ -72,7 +63,7 @@ public class QueryClientUtil {
     public static <T> String convertToCSV(String[] headers, Iterable<T> data, Mapper<T> mapper) {
         StringBuilder builder = new StringBuilder();
         //headers
-        builder.append(Stream.of(headers).collect(Collectors.joining(",")));
+        builder.append(String.join(",", headers));
         builder.append("\n");
         //data
         for (T item : data) {

@@ -1,8 +1,6 @@
 package ar.edu.itba.pod.tpe1.server.repository;
 
-import ar.edu.itba.pod.tpe1.administration.Doctor;
 import ar.edu.itba.pod.tpe1.query.CaredInfo;
-import ar.edu.itba.pod.tpe1.waitingRoom.Patient;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,16 +13,6 @@ public class HistoryRepository {
     public void addHistory(CaredInfo caredInfo) {
         synchronized (lock) {
             history.add(caredInfo);
-        }
-    }
-
-    public void addHistory(final int roomId, Patient patient, Doctor doctor) {
-        synchronized (lock) {
-            CaredInfo entry = CaredInfo.newBuilder()
-                    .setRoomId(roomId)
-                    .setDoctor(doctor)
-                    .setPatient(patient).build();
-            history.add(entry);
         }
     }
 

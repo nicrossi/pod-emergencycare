@@ -1,7 +1,6 @@
 package ar.edu.itba.pod.tpe1.server.repository;
 
 import ar.edu.itba.pod.tpe1.emergencyCare.RoomStatus;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
@@ -11,7 +10,6 @@ import java.util.List;
 public class RoomsRepository {
     private final Object lock = "lock";
 
-    @Getter
     private final List<RoomStatus> rooms = new ArrayList<>();
 
     public int addRoom() {
@@ -23,7 +21,7 @@ public class RoomsRepository {
         }
     }
 
-    public RoomStatus setRoomStatus(int roomId, RoomStatus status) {
+    public void setRoomStatus(int roomId, RoomStatus status) {
         int id = roomId - 1; //rooms start at 1, but in reality they start from 0
         synchronized (lock) {
             if (roomId > rooms.size()) {
@@ -31,7 +29,6 @@ public class RoomsRepository {
             }
             rooms.set(id, status);
 
-            return status;
         }
     }
 
@@ -45,10 +42,9 @@ public class RoomsRepository {
         }
     }
 
-    //get sorted rooms by id
     public List<RoomStatus> getRooms() {
         synchronized (lock) {
-            return new ArrayList<>(rooms);
+            return rooms;
         }
     }
 }
