@@ -71,11 +71,8 @@ public class PatientsRepository {
     public Optional<Patient> getWaitingRoomNextPatient() {
         synchronized (lock) {
             ComparablePatient patient = waitingRoom.poll();
-            if (patient == null) {
-                return Optional.empty();
-            }
 
-            return Optional.ofNullable(patients.remove(patient.getName()))
+            return Optional.ofNullable(patient)
                     .map(ComparablePatient::getPatient);
         }
     }
@@ -120,7 +117,6 @@ public class PatientsRepository {
             }
             synchronized (lock) {
                 waitingRoom.remove(lastReturned);
-                patients.remove(lastReturned.getName());
             }
             lastReturned = null;
         }
