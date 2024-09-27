@@ -75,7 +75,7 @@ public class PatientsRepositoryTest {
     }
 
     @Test
-    public void udpateLevelPreservingFifoOrderingTest() {
+    public void updateLevelPreservingFifoOrderingTest() {
         Patient patient1 = Patient.newBuilder()
                 .setPatientName("Patient1")
                 .setLevel(4).build();

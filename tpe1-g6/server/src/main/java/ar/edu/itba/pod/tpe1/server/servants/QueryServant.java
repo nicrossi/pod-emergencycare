@@ -2,7 +2,7 @@ package ar.edu.itba.pod.tpe1.server.servants;
 
 import ar.edu.itba.pod.tpe1.emergencyCare.RoomStatus;
 import ar.edu.itba.pod.tpe1.query.*;
-import ar.edu.itba.pod.tpe1.server.repository.CareRespository;
+import ar.edu.itba.pod.tpe1.server.repository.CareRepository;
 import ar.edu.itba.pod.tpe1.server.repository.HistoryRepository;
 import ar.edu.itba.pod.tpe1.server.repository.PatientsRepository;
 import ar.edu.itba.pod.tpe1.server.repository.RoomsRepository;
@@ -27,13 +27,13 @@ public class QueryServant extends QueryServiceGrpc.QueryServiceImplBase {
     private final HistoryRepository historyRepository;
     private final PatientsRepository patientsRepository;
     private final RoomsRepository roomsRepository;
-    private final CareRespository careRespository;
+    private final CareRepository careRepository;
 
-    public QueryServant(HistoryRepository hR, PatientsRepository pR, RoomsRepository rR, CareRespository cR, ReadWriteLock lock) {
+    public QueryServant(HistoryRepository hR, PatientsRepository pR, RoomsRepository rR, CareRepository cR, ReadWriteLock lock) {
         patientsRepository = pR;
         historyRepository = hR;
         roomsRepository = rR;
-        careRespository = cR;
+        careRepository = cR;
         this.lock = lock;
     }
 
@@ -53,7 +53,7 @@ public class QueryServant extends QueryServiceGrpc.QueryServiceImplBase {
                         .setStatus(status);
 
                 if ("Occupied".equals(status)) {
-                    CaredInfo care = careRespository.getCare(i + 1);
+                    CaredInfo care = careRepository.getCare(i + 1);
                     roomInfoBuilder.setDoctor(care.getDoctor()).setPatient(care.getPatient());
                 }
                 listOfRooms.add(roomInfoBuilder.build());

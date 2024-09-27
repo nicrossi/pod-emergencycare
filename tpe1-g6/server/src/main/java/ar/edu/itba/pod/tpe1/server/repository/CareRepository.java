@@ -8,7 +8,7 @@ import com.sun.jdi.request.DuplicateRequestException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CareRespository {
+public class CareRepository {
     private final Object lock = "lock";
     private final List<CaredInfo> currentlyCared = new ArrayList<>();
 

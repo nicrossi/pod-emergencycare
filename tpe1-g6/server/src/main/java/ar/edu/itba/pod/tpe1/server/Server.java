@@ -18,7 +18,7 @@ public class Server {
     private static final PatientsRepository patRepo = new PatientsRepository();
     private static final RoomsRepository rooRepo = new RoomsRepository();
     private static final HistoryRepository hisRepo = new HistoryRepository();
-    private static final CareRespository carRepo = new CareRespository();
+    private static final CareRepository carRepo = new CareRepository();
 
     private static final ReadWriteLock lock = new ReentrantReadWriteLock();
 

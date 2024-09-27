@@ -28,12 +28,12 @@ public class EmergencyCareServant extends EmergencyCareServiceGrpc.EmergencyCare
     private final RoomsRepository roomsRepository;
     private final DoctorsRepository doctorsRepository;
     private final HistoryRepository historyRepository;
-    private final CareRespository careRepository;
+    private final CareRepository careRepository;
     private final DoctorPagerServant doctorPagerServant;
 
     private final ReadWriteLock lock;
 
-    public EmergencyCareServant(PatientsRepository pR, DoctorsRepository dR, RoomsRepository rR, HistoryRepository hR, CareRespository cR,
+    public EmergencyCareServant(PatientsRepository pR, DoctorsRepository dR, RoomsRepository rR, HistoryRepository hR, CareRepository cR,
                                 DoctorPagerServant pager, ReadWriteLock lock) {
         patientsRepository = pR;
         doctorsRepository = dR;
