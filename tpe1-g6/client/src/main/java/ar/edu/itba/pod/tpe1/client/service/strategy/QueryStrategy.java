@@ -26,8 +26,6 @@ public class QueryStrategy extends AbstractServiceStrategy {
     @Override
     protected Runnable getActionTask(String action, CountDownLatch latch) {
         String outPath = Validate.notBlank(System.getProperty("outPath"));
-        //TODO: write to a file (do not append, overwrite if it exists)
-
         StreamObserver<QueryRoomsResponse> queryRoomsObserver = new StreamObserver<>() {
             @Override
             public void onNext(QueryRoomsResponse value) {
@@ -117,7 +115,7 @@ public class QueryStrategy extends AbstractServiceStrategy {
                         value.getHistoryList(),
                         QueryClientUtil::mapCaredInfo
                 );
-                //TODO: actually make a file...
+
                 try (BufferedWriter writer = new BufferedWriter
                         (new FileWriter(outPath))) {
                     writer.write(buffer);

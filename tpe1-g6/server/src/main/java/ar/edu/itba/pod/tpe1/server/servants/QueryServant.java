@@ -80,7 +80,6 @@ public class QueryServant extends QueryServiceGrpc.QueryServiceImplBase {
                 return;
             }
 
-            // Get sorted patients
             sortedPatients = patientsRepository.getSortedPatients();
         } finally {
             lock.readLock().unlock();

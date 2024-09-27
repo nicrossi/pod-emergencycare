@@ -165,7 +165,6 @@ public class EmergencyCareServant extends EmergencyCareServiceGrpc.EmergencyCare
             lock.writeLock().unlock();
         }
 
-        //TODO: there has to be a better way to do this...
         DischargePatientResponse response = DischargePatientResponse.newBuilder()
                 .setDoctorLevel(caredInfo.getDoctor().getLevel())
                 .setDoctorName(caredInfo.getDoctor().getName())
