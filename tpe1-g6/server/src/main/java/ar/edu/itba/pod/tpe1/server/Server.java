@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import org.apache.commons.lang3.Validate;
 
 public class Server {
     private static final Logger logger = LoggerFactory.getLogger(Server.class);
@@ -25,9 +26,9 @@ public class Server {
     private static final DoctorPagerServant doctorPagerServant = new DoctorPagerServant(docRepo);
 
     public static void main(String[] args) throws InterruptedException, IOException {
-        logger.info(" Server Starting ...");
+        final String portStr = Validate.notBlank(System.getProperty("port"), "server port is required");
+        final int port = Integer.parseInt(portStr);
 
-        int port = 50051;
         io.grpc.Server server = ServerBuilder.forPort(port)
                 .addService(new HealthCheckServant())
                 .addService(new AdministrationServant(docRepo, rooRepo, doctorPagerServant, lock))
