@@ -9,9 +9,9 @@ option java_package = "ar.edu.itba.pod.tpe1.healthCheck";
 option java_multiple_files = true;
 
 service HealthCheckService {
- rpc healthCheck(google.protobuf.Empty) returns (HealthCheckResponse);
+  rpc healthCheck(google.protobuf.Empty) returns (HealthCheckResponse);
 }
 
 message HealthCheckResponse {
- google.protobuf.StringValue status = 1;
+  google.protobuf.StringValue status = 1;
 }

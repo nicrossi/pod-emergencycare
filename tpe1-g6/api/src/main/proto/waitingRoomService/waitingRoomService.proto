@@ -16,7 +16,7 @@ service WaitingRoomService {
 }
 
 message Patient {
-  string patientName  = 1;
+  string patientName = 1;
   int32 level = 2;
 }
 
